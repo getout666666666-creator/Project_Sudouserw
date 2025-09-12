@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Server 3</title>
+    <style>
+        body { background: #232526 url('https://www.transparenttextures.com/patterns/diamond-upholstery.png'); color: #fff; font-family: Arial, sans-serif; text-align: center; }
+        .status { margin-top: 2rem; font-size: 1.5rem; }
+        .diagnostics {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            margin: 0;
+            background: rgba(30,30,60,0.95);
+            border-radius: 0;
+            box-shadow: 0 2px 24px #e91e6399;
+            padding: 3rem 2rem 2rem 2rem;
+            max-width: none;
+            font-size: 1.3rem;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .diagnostics-title {
+            color: #e91e63;
+            font-weight: bold;
+            margin-bottom: 0.7rem;
+        }
+        .diag-label { color: #90caf9; }
+        .diag-value { color: #fff; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Test Server 3</h1>
+    <div class="status">Status: <span style="color: #e91e63;">Online</span></div>
+    <p>This is a third simulated server for penetration testing practice.</p>
+    <div class="diagnostics">
+        <div class="diagnostics-title">Live Diagnostics</div>
+        <div><span class="diag-label">Ping:</span> <span class="diag-value" id="ping">-- ms</span></div>
+        <div><span class="diag-label">Requests:</span> <span class="diag-value" id="reqs">0</span></div>
+        <div><span class="diag-label">Last Request:</span> <span class="diag-value" id="lastreq">--</span></div>
+        <div style="margin-top:2rem;display:flex;gap:2rem;">
+            <button id="pentest-btn" style="padding:1rem 2.2rem;background:linear-gradient(135deg,#00bcd4 60%,#2196f3 100%);color:#fff;font-weight:bold;font-size:1.2rem;border-radius:12px;border:2px solid #0d47a1;box-shadow:0 2px 12px #2196f355;transition:background 0.2s,transform 0.2s;cursor:pointer;">Penetration Test</button>
+            <button id="ddos-btn" style="padding:1rem 2.2rem;background:linear-gradient(135deg,#e91e63 60%,#ff9800 100%);color:#fff;font-weight:bold;font-size:1.2rem;border-radius:12px;border:2px solid #b71c1c;box-shadow:0 2px 12px #e91e6355;transition:background 0.2s,transform 0.2s;cursor:pointer;">DDoS Attack</button>
+        </div>
+    </div>
+        <div class="practice-section" style="background:rgba(30,30,60,0.85);border-radius:12px;padding:1rem;margin:2rem auto;max-width:350px;box-shadow:0 2px 12px #e91e6355;">
+            <h2 style="color:#00bcd4;margin-bottom:0.7rem;">Backdoor Challenge</h2>
+            <div style="color:#90caf9;margin-bottom:0.5rem;">Try to break into the server by accessing the <code>/api/server3/backdoor</code> endpoint.<br>
+            You must send a POST request with a secret key in the payload.<br>
+            <strong>Instructions:</strong>
+            <ul style="text-align:left;color:#fff;">
+                <li>Use JavaScript, Python, or any tool to send a POST request to <code>http://localhost:8080/api/server3/backdoor</code></li>
+                <li>Payload must be: <code>{ "secret": "letmein" }</code></li>
+                <li>If successful, the server status will change to <span style="color:#e91e63;">Breached</span>.</li>
+            </ul>
+            <strong>Example (Python):</strong>
+            <pre style="background:#1b263b;color:#fff;padding:0.5rem;border-radius:8px;">import requests
+    resp = requests.post('http://localhost:8080/api/server3/backdoor', json={"secret": "letmein"})
+    print(resp.json())</pre>
+            </div>
+        </div>
+    <div id="debugger-panel" style="position:fixed;bottom:0;left:0;width:100vw;background:rgba(30,30,60,0.97);color:#fff;font-family:'Fira Mono',monospace;padding:0.7rem 2rem;z-index:1000;box-shadow:0 -2px 12px #e91e6399;font-size:1rem;display:none;"></div>
+    <script>
+        async function fetchDiagnostics() {
+            try {
+                const res = await fetch('http://localhost:8080/api/server3/diagnostics');
+                if (!res.ok) throw new Error('Backend not available');
+                const data = await res.json();
+                document.getElementById('ping').textContent = data.lastPing + ' ms';
+                document.getElementById('reqs').textContent = data.requests;
+                document.getElementById('lastreq').textContent = data.lastRequest ? new Date(data.lastRequest).toLocaleTimeString() : '--';
+                document.querySelector('.status span').textContent = data.status;
+                document.querySelector('.status span').style.color = data.status === 'Online' ? '#e91e63' : (data.status === 'Lagging' ? '#ff9800' : '#4caf50');
+                hideDebugger();
+            } catch (e) {
+                showDebugger('Diagnostics fetch failed: Backend server not running or unreachable.');
+            }
+        }
+
+        async function sendRequest() {
+            try {
+                const res = await fetch('http://localhost:8080/api/server3/request', { method: 'POST' });
+                if (!res.ok) throw new Error('Backend not available');
+                fetchDiagnostics();
+                hideDebugger();
+            } catch (e) {
+                showDebugger('Penetration Test failed: Backend server not running or unreachable.');
+            }
+        }
+
+        async function sendDDoS() {
+            try {
+                let ok = true;
+                for (let i = 0; i < 10; i++) {
+                    const res = await fetch('http://localhost:8080/api/server3/request', { method: 'POST' });
+                    if (!res.ok) ok = false;
+                }
+                if (!ok) throw new Error('Backend not available');
+                fetchDiagnostics();
+                hideDebugger();
+            } catch (e) {
+                showDebugger('DDoS Attack failed: Backend server not running or unreachable.');
+            }
+        }
+
+        function showDebugger(msg) {
+            const dbg = document.getElementById('debugger-panel');
+            dbg.textContent = msg + ' | Tip: Use ReqBin or Postman Web to test endpoints if backend is unreachable.';
+            dbg.style.display = 'block';
+        }
+        function hideDebugger() {
+            const dbg = document.getElementById('debugger-panel');
+            dbg.textContent = '';
+            dbg.style.display = 'none';
+        }
+
+        // Fetch diagnostics every 2 seconds
+        setInterval(fetchDiagnostics, 2000);
+        fetchDiagnostics();
+
+        // Add event listeners for new buttons
+        document.getElementById('pentest-btn').onclick = sendRequest;
+        document.getElementById('ddos-btn').onclick = sendDDoS;
+    </script>
+</body>
+</html>

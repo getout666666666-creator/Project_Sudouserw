@@ -1,14 +1,254 @@
+
 <!DOCTYPE html>
-<html>
-    <body>
-        <h1>Welcome to Project sudo_user</h1>
-            <p>If you are one of the developers of this project or the pronect owner you should have acess to this site if not the verification will catch you</p>
-                <a href="">Link to actual page this page was a troll</a>
-
-
-
-
-
-
-    </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project sudo_user</title>
+    <style>
+        body {
+            background: #0d1b2a url('https://www.transparenttextures.com/patterns/diamond-upholstery.png');
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .pentagon-bg {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90vw;
+            height: 90vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .pentagon {
+            position: absolute;
+            top: 5vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 700px;
+            height: 700px;
+            background: linear-gradient(135deg, #2196f3 60%, #0d47a1 100%);
+            clip-path: polygon(50% 0%, 95% 38%, 77% 90%, 23% 90%, 5% 38%);
+            opacity: 0.7;
+            box-shadow: 0 0 80px 20px #2196f399;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            background: rgba(30, 30, 60, 0.92);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            padding: 2.5rem 3rem;
+            text-align: center;
+            max-width: 700px;
+            margin: 6vh auto;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 8px #2196f3;
+        }
+        p {
+            margin: 1rem 0;
+            font-size: 1.1rem;
+        }
+        a, .server-link {
+            display: inline-block;
+            margin: 1rem 0.5rem;
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(135deg, #00bcd4 60%, #2196f3 100%);
+            color: #fff;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 8px #2196f355;
+            border: 2px solid #0d47a1;
+            transition: background 0.2s, transform 0.2s;
+        }
+        a:hover, .server-link:hover {
+            background: linear-gradient(135deg, #2196f3 60%, #00bcd4 100%);
+            color: #fff;
+            transform: scale(1.07);
+        }
+        .gif {
+            margin: 2rem 0 1.5rem 0;
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            max-width: 100%;
+        }
+        .practice-section {
+            background: rgba(13, 27, 42, 0.85) url('https://www.transparenttextures.com/patterns/hexellence.png');
+            border-radius: 16px;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px #2196f355;
+        }
+        .practice-section h2 {
+            color: #00bcd4;
+            margin-bottom: 0.7rem;
+            text-shadow: 1px 1px 6px #2196f3;
+        }
+        .code-block {
+            background: #1b263b url('https://www.transparenttextures.com/patterns/diamond-upholstery.png');
+            color: #fff;
+            font-family: 'Fira Mono', 'Consolas', monospace;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: left;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px #2196f355;
+        }
+        .instructions {
+            color: #90caf9;
+            font-size: 0.98rem;
+            margin-bottom: 0.5rem;
+        }
+        ul.server-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        ul.server-list li {
+            display: inline-block;
+            margin: 0.5rem;
+        }
+    </style>
+            <div class="practice-section" style="margin-top:2rem;">
+                <h2>Verification Login</h2>
+                <form id="loginForm" style="max-width:350px;margin:0 auto;text-align:left;">
+                    <label for="email" style="color:#90caf9;font-weight:bold;">Email:</label><br>
+                    <input type="email" id="email" name="email" required aria-required="true" autocomplete="username" style="width:100%;padding:0.5rem;margin-bottom:1rem;border-radius:8px;border:1px solid #2196f3;background:#232526;color:#fff;">
+                    <label for="password" style="color:#90caf9;font-weight:bold;">Password:</label><br>
+                    <input type="password" id="password" name="password" required aria-required="true" autocomplete="current-password" style="width:100%;padding:0.5rem;margin-bottom:1rem;border-radius:8px;border:1px solid #2196f3;background:#232526;color:#fff;">
+                    <button type="submit" id="loginBtn" style="width:100%;padding:0.7rem 0;background:linear-gradient(135deg,#00bcd4 60%,#2196f3 100%);color:#fff;font-weight:bold;font-size:1.1rem;border-radius:10px;border:2px solid #0d47a1;box-shadow:0 2px 8px #2196f355;transition:background 0.2s,transform 0.2s;cursor:pointer;animation: pulse 1.5s infinite alternate;">Verify & Log In</button>
+                    <div id="loginMsg" style="margin-top:1rem;color:#e91e63;font-weight:bold;display:none;"></div>
+                </form>
+                <style>
+                @keyframes pulse {
+                    0% { box-shadow: 0 2px 8px #2196f355; }
+                    100% { box-shadow: 0 0 24px #00bcd4; }
+                }
+                </style>
+                <script>
+                document.getElementById('loginForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var email = document.getElementById('email').value;
+                    var password = document.getElementById('password').value;
+                    var msg = document.getElementById('loginMsg');
+                    if (!email || !password) {
+                        msg.textContent = 'Please enter both email and password.';
+                        msg.style.display = 'block';
+                        return;
+                    }
+                    // Simulate verification
+                    msg.textContent = 'Verification successful! Welcome, ' + email;
+                    msg.style.display = 'block';
+                    msg.style.color = '#4caf50';
+                });
+                </script>
+            </div>
+                        <div class="practice-section" style="margin-top:2rem;">
+                            <h2>Easy Backend Access Practice</h2>
+                            <div class="instructions">No downloads or terminal required! You can interact with the backend using your browser and online tools. If the backend is unreachable, use these methods:</div>
+                            <ul style="text-align:left;color:#fff;margin-bottom:1rem;">
+                                <li>Use <a href="https://reqbin.com/" target="_blank" style="color:#00bcd4;text-decoration:underline;">ReqBin</a> or <a href="https://web.postman.co/" target="_blank" style="color:#00bcd4;text-decoration:underline;">Postman Web</a> to send HTTP requests to backend endpoints directly from your browser.</li>
+                                <li>If the backend is unreachable, copy the endpoint URL (e.g., <code>http://localhost:8080/api/server1/diagnostics</code>) and paste it into ReqBin or Postman Web to test requests and see responses.</li>
+                                <li>Use browser JavaScript console: <span class="code-block">fetch('http://localhost:8080/api/server1/diagnostics').then(r => r.json()).then(console.log)</span></li>
+                            </ul>
+                            <div class="instructions">All backend endpoints are documented below. You can practice penetration tests and DDoS attacks by sending requests to these endpoints using online tools or your browser:</div>
+                            <ul style="text-align:left;color:#fff;">
+                                <li><b>GET</b> <code>/api/server1/diagnostics</code> (or server2/server3): Get live diagnostics</li>
+                                <li><b>POST</b> <code>/api/server1/request</code>: Simulate a penetration test request</li>
+                                <li><b>POST</b> <code>/api/server1/backdoor</code>: Try the backdoor challenge (payload: <code>{"secret": "letmein"}</code>)</li>
+                            </ul>
+                            <div class="instructions">You can use any online API tool or your browser to practice. No downloads or terminal required!</div>
+                                <h2>Server Dashboard</h2>
+                                <div id="server-dashboard" style="display:flex;flex-wrap:wrap;justify-content:center;gap:2rem;">
+                                        <!-- Server cards will be injected here -->
+                                </div>
+                                <script>
+                                const servers = [
+                                    { id: 'server1', name: 'Test Server 1', color: '#4caf50' },
+                                    { id: 'server2', name: 'Test Server 2', color: '#ff9800' },
+                                    { id: 'server3', name: 'Test Server 3', color: '#e91e63' }
+                                ];
+                                function createServerCard(server) {
+                                    const card = document.createElement('div');
+                                    card.style = `background:rgba(30,30,60,0.95);border-radius:18px;box-shadow:0 8px 32px 0 ${server.color}55;padding:2rem 2.5rem;min-width:300px;max-width:350px;width:100%;text-align:left;display:flex;flex-direction:column;align-items:flex-start;`;
+                                    card.innerHTML = `
+                                        <h3 style="color:${server.color};margin-bottom:1rem;">${server.name}</h3>
+                                        <div style="margin-bottom:1rem;font-size:1.1rem;">
+                                            <span>Status:</span> <span id="${server.id}-status" style="color:${server.color};font-weight:bold;">--</span>
+                                        </div>
+                                        <div style="margin-bottom:0.5rem;"><span style="color:#90caf9;">Ping:</span> <span id="${server.id}-ping" style="color:#fff;font-weight:bold;">-- ms</span></div>
+                                        <div style="margin-bottom:0.5rem;"><span style="color:#90caf9;">Requests:</span> <span id="${server.id}-reqs" style="color:#fff;font-weight:bold;">0</span></div>
+                                        <div style="margin-bottom:1rem;"><span style="color:#90caf9;">Last Request:</span> <span id="${server.id}-lastreq" style="color:#fff;font-weight:bold;">--</span></div>
+                                        <button onclick="startPenTest('${server.id}')" style="margin-bottom:0.5rem;width:100%;padding:0.7rem 0;background:linear-gradient(135deg,#00bcd4 60%,#2196f3 100%);color:#fff;font-weight:bold;font-size:1.1rem;border-radius:10px;border:2px solid #0d47a1;box-shadow:0 2px 8px #2196f355;transition:background 0.2s,transform 0.2s;cursor:pointer;">Start Penetration Test</button>
+                                        <button onclick="startDDoS('${server.id}')" style="width:100%;padding:0.7rem 0;background:linear-gradient(135deg,#e91e63 60%,#ff9800 100%);color:#fff;font-weight:bold;font-size:1.1rem;border-radius:10px;border:2px solid #0d47a1;box-shadow:0 2px 8px #e91e6355;transition:background 0.2s,transform 0.2s;cursor:pointer;">Start DDoS Attack</button>
+                                    `;
+                                    return card;
+                                }
+                                function updateServerCard(server) {
+                                    fetch(`http://localhost:8080/api/${server.id}/diagnostics`).then(res => res.json()).then(data => {
+                                        document.getElementById(`${server.id}-status`).textContent = data.status;
+                                        document.getElementById(`${server.id}-status`).style.color = data.status === 'Online' ? server.color : (data.status === 'Lagging' ? '#ff9800' : '#e91e63');
+                                        document.getElementById(`${server.id}-ping`).textContent = data.lastPing + ' ms';
+                                        document.getElementById(`${server.id}-reqs`).textContent = data.requests;
+                                        document.getElementById(`${server.id}-lastreq`).textContent = data.lastRequest ? new Date(data.lastRequest).toLocaleTimeString() : '--';
+                                    });
+                                }
+                                function showError(msg) {
+                                    let errDiv = document.getElementById('backend-error');
+                                    if (!errDiv) {
+                                        errDiv = document.createElement('div');
+                                        errDiv.id = 'backend-error';
+                                        errDiv.style = 'color:#e91e63;font-weight:bold;margin:1rem 0;text-align:center;';
+                                        dash.parentNode.insertBefore(errDiv, dash);
+                                    }
+                                    errDiv.innerHTML = msg + '<br>If you do not have a terminal, use <a href="https://reqbin.com/" target="_blank" style="color:#00bcd4;text-decoration:underline;">ReqBin</a> or <a href="https://web.postman.co/" target="_blank" style="color:#00bcd4;text-decoration:underline;">Postman Web</a> to test backend endpoints.';
+                                    setTimeout(() => { errDiv.textContent = ''; }, 7000);
+                                }
+                                async function startPenTest(serverId) {
+                                    try {
+                                        const res = await fetch(`http://localhost:8080/api/${serverId}/request`, { method: 'POST' });
+                                        if (!res.ok) throw new Error('Backend not available');
+                                        updateServerCard(servers.find(s => s.id === serverId));
+                                    } catch (e) {
+                                        showError('Penetration Test failed: Backend server not running or unreachable.');
+                                    }
+                                }
+                                async function startDDoS(serverId) {
+                                    try {
+                                        let ok = true;
+                                        for (let i = 0; i < 100; i++) {
+                                            const res = await fetch(`http://localhost:8080/api/${serverId}/request`, { method: 'POST' });
+                                            if (!res.ok) ok = false;
+                                        }
+                                        if (!ok) throw new Error('Backend not available');
+                                        setTimeout(() => updateServerCard(servers.find(s => s.id === serverId)), 1000);
+                                    } catch (e) {
+                                        showError('DDoS Attack failed: Backend server not running or unreachable.');
+                                    }
+                                }
+                                // Render cards
+                                const dash = document.getElementById('server-dashboard');
+                                servers.forEach(server => {
+                                    dash.appendChild(createServerCard(server));
+                                    updateServerCard(server);
+                                    setInterval(() => updateServerCard(server), 2000);
+                                });
+                                </script>
+                        </div>
+                        <p><em>*GitHub terminal uses Bash Command Shell</em></p>
+                </div>
+        </body>
 </html>

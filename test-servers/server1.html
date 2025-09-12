@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Server 1</title>
+    <style>
+        body {
+            background: #0d1b2a url('https://www.transparenttextures.com/patterns/diamond-upholstery.png');
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .diagnostics-full {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(30,30,60,0.92) url('https://www.transparenttextures.com/patterns/hexellence.png');
+            border-radius: 0;
+            box-shadow: 0 8px 32px 0 #4caf5055;
+            padding: 3rem 2rem;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+        .diagnostics-title {
+            color: #4caf50;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            text-shadow: 2px 2px 8px #2196f3;
+        }
+        .diag-label { color: #90caf9; font-size:1.2rem; }
+        .diag-value { color: #fff; font-weight: bold; font-size:1.2rem; }
+        .diag-row { margin-bottom: 1.2rem; }
+        .diag-buttons {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .diag-btn {
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg,#00bcd4 60%,#2196f3 100%);
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-radius: 14px;
+            border: 2px solid #0d47a1;
+            box-shadow: 0 2px 8px #2196f355;
+            transition: background 0.2s,transform 0.2s;
+            cursor: pointer;
+        }
+        .diag-btn.ddos {
+            background: linear-gradient(135deg,#e91e63 60%,#ff9800 100%);
+            border: 2px solid #e91e63;
+        }
+        .diag-btn:hover {
+            background: linear-gradient(135deg,#2196f3 60%,#00bcd4 100%);
+            transform: scale(1.07);
+        }
+        .diag-btn.ddos:hover {
+            background: linear-gradient(135deg,#ff9800 60%,#e91e63 100%);
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Server 1</h1>
+    <div class="status">Status: <span style="color: #4caf50;">Online</span></div>
+    <p>This is a simulated server for penetration testing practice.</p>
+        <div class="practice-section" style="background:rgba(30,30,60,0.85);border-radius:12px;padding:1rem;margin:2rem auto;max-width:350px;box-shadow:0 2px 12px #4caf5055;">
+            <h2 style="color:#00bcd4;margin-bottom:0.7rem;">Backdoor Challenge</h2>
+            <div style="color:#90caf9;margin-bottom:0.5rem;">Try to break into the server by accessing the <code>/api/server1/backdoor</code> endpoint.<br>
+            You must send a POST request with a secret key in the payload.<br>
+            <strong>Instructions:</strong>
+            <ul style="text-align:left;color:#fff;">
+                <li>Use JavaScript, Python, or any tool to send a POST request to <code>http://localhost:8080/api/server1/backdoor</code></li>
+                <li>Payload must be: <code>{ "secret": "letmein" }</code></li>
+                <li>If successful, the server status will change to <span style="color:#e91e63;">Breached</span>.</li>
+            </ul>
+            <strong>Example (Python):</strong>
+            <pre style="background:#1b263b;color:#fff;padding:0.5rem;border-radius:8px;">import requests
+    resp = requests.post('http://localhost:8080/api/server1/backdoor', json={"secret": "letmein"})
+    print(resp.json())</pre>
+            </div>
+        </div>
+    <div class="diagnostics-full">
+        <div class="diagnostics-title">Live Diagnostics</div>
+        <div class="diag-row"><span class="diag-label">Status:</span> <span class="diag-value" id="status">--</span></div>
+        <div class="diag-row"><span class="diag-label">Ping:</span> <span class="diag-value" id="ping">-- ms</span></div>
+        <div class="diag-row"><span class="diag-label">Requests:</span> <span class="diag-value" id="reqs">0</span></div>
+        <div class="diag-row"><span class="diag-label">Last Request:</span> <span class="diag-value" id="lastreq">--</span></div>
+        <div class="diag-buttons">
+            <button class="diag-btn" onclick="sendRequest()">Start Penetration Test</button>
+                <button class="diag-btn ddos" onclick="sendDDoS()">Start DDoS Attack</button>
+        </div>
+    </div>
+    <div id="debugger-panel" style="position:fixed;bottom:0;left:0;width:100vw;background:rgba(30,30,60,0.97);color:#fff;font-family:'Fira Mono',monospace;padding:0.7rem 2rem;z-index:1000;box-shadow:0 -2px 12px #4caf5055;font-size:1rem;display:none;"></div>
+    <script>
+        async function fetchDiagnostics() {
+            try {
+                const res = await fetch('http://localhost:8080/api/server1/diagnostics');
+                if (!res.ok) throw new Error('Backend not available');
+                const data = await res.json();
+                document.getElementById('ping').textContent = data.lastPing + ' ms';
+                document.getElementById('reqs').textContent = data.requests;
+                document.getElementById('lastreq').textContent = data.lastRequest ? new Date(data.lastRequest).toLocaleTimeString() : '--';
+                document.getElementById('status').textContent = data.status;
+                document.getElementById('status').style.color = data.status === 'Online' ? '#4caf50' : (data.status === 'Lagging' ? '#ff9800' : '#e91e63');
+                hideDebugger();
+            } catch (e) {
+                showDebugger('Diagnostics fetch failed: Backend server not running or unreachable.');
+            }
+        }
+
+            async function sendRequest() {
+                try {
+                    const res = await fetch('http://localhost:8080/api/server1/request', { method: 'POST' });
+                    if (!res.ok) throw new Error('Backend not available');
+                    fetchDiagnostics();
+                    hideDebugger();
+                } catch (e) {
+                    showDebugger('Penetration Test failed: Backend server not running or unreachable.');
+                }
+            }
+
+            async function sendDDoS() {
+                try {
+                    let ok = true;
+                    for (let i = 0; i < 10; i++) {
+                        const res = await fetch('http://localhost:8080/api/server1/request', { method: 'POST' });
+                        if (!res.ok) ok = false;
+                    }
+                    if (!ok) throw new Error('Backend not available');
+                    fetchDiagnostics();
+                    hideDebugger();
+                } catch (e) {
+                    showDebugger('DDoS Attack failed: Backend server not running or unreachable.');
+                }
+            }
+
+            function showDebugger(msg) {
+                const dbg = document.getElementById('debugger-panel');
+                dbg.textContent = msg + ' | Tip: Use ReqBin or Postman Web to test endpoints if backend is unreachable.';
+                dbg.style.display = 'block';
+            }
+            function hideDebugger() {
+                const dbg = document.getElementById('debugger-panel');
+                dbg.textContent = '';
+                dbg.style.display = 'none';
+            }
+
+        function startDDoS() {
+            for (let i = 0; i < 100; i++) {
+                fetch('http://localhost:8080/api/server1/request', { method: 'POST' });
+            }
+            setTimeout(fetchDiagnostics, 1000);
+        }
+
+        setInterval(fetchDiagnostics, 2000);
+        fetchDiagnostics();
+    </script>
+</body>
+</html>

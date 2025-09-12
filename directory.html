@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Directory Listing</title>
+    <style>
+        body {
+            background: #1b263b url('https://www.transparenttextures.com/patterns/hexellence.png');
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(30,30,60,0.92);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 #2196f355;
+            padding: 2.5rem 3rem;
+            max-width: 800px;
+            margin: 6vh auto;
+        }
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1.2rem;
+            text-shadow: 2px 2px 8px #2196f3;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: linear-gradient(135deg, #00bcd4 60%, #2196f3 100%);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px #2196f355;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .console {
+            background: #232526 url('https://www.transparenttextures.com/patterns/diamond-upholstery.png');
+            color: #90caf9;
+            font-family: 'Fira Mono', 'Consolas', monospace;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            min-height: 120px;
+            box-shadow: 0 2px 8px #2196f355;
+            font-size: 1rem;
+        }
+        .spec-btn {
+            background: linear-gradient(135deg, #e91e63 60%, #ff9800 100%);
+            color: #fff;
+            border-radius: 10px;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #e91e6355;
+            margin-left: 1rem;
+        }
+        .spec-btn:hover {
+            background: linear-gradient(135deg, #ff9800 60%, #e91e63 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Directory Listing</h1>
+        <ul>
+            <li><a href="/-Main_.html">Homepage</a></li>
+            <li><a href="/test-servers/server1.html">Test Server 1</a></li>
+            <li><a href="/test-servers/server2.html">Test Server 2</a></li>
+            <li><a href="/test-servers/server3.html">Test Server 3</a></li>
+            <li><a href="/README.md">README</a></li>
+        </ul>
+        <button class="spec-btn" onclick="showSpecs()">Show Network Specs</button>
+        <div class="console" id="console">Click 'Show Network Specs' to view network details.</div>
+    </div>
+    <script>
+        function showSpecs() {
+            const consoleDiv = document.getElementById('console');
+            consoleDiv.textContent = 'Loading network specs...';
+            fetch('http://localhost:8080/api/network/specs')
+                .then(res => res.json())
+                .then(data => {
+                    consoleDiv.textContent =
+                        `Network Specs:\n` +
+                        `IP Address: ${data.ip}\n` +
+                        `Hostname: ${data.hostname}\n` +
+                        `OS: ${data.os}\n` +
+                        `Uptime: ${data.uptime}\n` +
+                        `Active Connections: ${data.connections}`;
+                })
+                .catch(() => {
+                    consoleDiv.textContent = 'Unable to fetch network specs. Is the backend running?';
+                });
+        }
+    </script>
+</body>
+</html>
