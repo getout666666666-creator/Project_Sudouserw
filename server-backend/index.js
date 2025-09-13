@@ -3,11 +3,19 @@
 import express from 'express';
 import cors from 'cors';
 
+
+import path from 'path';
+import { fileURLToPath } from 'url';
 const app = express();
-const PORT = 8080;
+const PORT = 3000;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 app.use(cors());
 app.use(express.json());
+// Serve static files (frontend)
+app.use(express.static(path.join(__dirname, '..')));
 
 // Diagnostics state for each server
 const servers = {
@@ -50,12 +58,73 @@ app.post('/api/:server/request', (req, res) => {
 });
 
 // Endpoint to reset diagnostics
+
 app.post('/api/:server/reset', (req, res) => {
   const { server } = req.params;
   if (!servers[server]) return res.status(404).json({ error: 'Server not found' });
   servers[server] = { requests: 0, lastPing: 0, lastRequest: null, status: 'Online' };
   res.json({ success: true });
 });
+
+
+// Network specs endpoint
+import os from 'os';
+app.get('/api/network/specs', (req, res) => {
+  try {
+    const interfaces = os.networkInterfaces();
+    let ip = 'unknown';
+    for (const name of Object.keys(interfaces)) {
+      for (const net of interfaces[name]) {
+        if (net.family === 'IPv4' && !net.internal) {
+          ip = net.address;
+          break;
+        }
+      }
+    }
+    res.json({
+      ip,
+      hostname: os.hostname(),
+      os: os.type() + ' ' + os.release(),
+      uptime: Math.floor(os.uptime() / 60) + ' min',
+      connections: 'N/A'
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get network specs', details: err.message });
+  }
+});
+
+// Simple backend homepage
+app.get('/', (req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.send(`
+    <html>
+      <head>
+        <title>Diagnostics Backend</title>
+        <style>
+          body { background: #181c24; color: #fff; font-family: Arial, sans-serif; padding: 2rem; }
+          h1 { color: #4caf50; }
+          code { background: #232526; color: #90caf9; padding: 2px 6px; border-radius: 4px; }
+          ul { margin-top: 1.5rem; }
+        </style>
+      </head>
+      <body>
+        <h1>Diagnostics Backend Running</h1>
+        <p>This backend provides diagnostics and testing endpoints for your project.</p>
+        <h2>Available Endpoints</h2>
+        <ul>
+          <li><code>GET /api/server1/diagnostics</code></li>
+          <li><code>GET /api/server2/diagnostics</code></li>
+          <li><code>GET /api/server3/diagnostics</code></li>
+          <li><code>POST /api/server1/request</code> (or server2/server3)</li>
+          <li><code>POST /api/server1/reset</code> (or server2/server3)</li>
+          <li><code>GET /api/network/specs</code></li>
+        </ul>
+        <p style="margin-top:2rem;color:#90caf9;">Status: <b>Online</b></p>
+      </body>
+    </html>
+  `);
+});
+
 
 
 function keepAlive() {
@@ -66,12 +135,17 @@ function keepAlive() {
   }, 600000);
 }
 
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Global error:', err);
   res.status(500).json({ error: 'Internal server error', details: err.message });
 });
 
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not found' });
+});
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
 });
@@ -80,7 +154,8 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection:', reason);
 });
 
+
 app.listen(PORT, () => {
-  console.log(`Diagnostics backend running on port ${PORT}`);
+  console.log(`Unified server running on port ${PORT}`);
   keepAlive();
 });

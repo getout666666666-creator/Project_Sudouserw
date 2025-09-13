@@ -7,20 +7,10 @@
         body { background: #232526 url('https://www.transparenttextures.com/patterns/diamond-upholstery.png'); color: #fff; font-family: Arial, sans-serif; text-align: center; }
         .status { margin-top: 2rem; font-size: 1.5rem; }
         .diagnostics {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            margin: 0;
-            background: rgba(30,30,60,0.95);
-            border-radius: 0;
+            position: static;
+            margin: 2rem auto 0 auto;
             box-shadow: 0 2px 24px #e91e6399;
-            padding: 3rem 2rem 2rem 2rem;
-            max-width: none;
-            font-size: 1.3rem;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            max-width: 600px;
         }
         .diagnostics-title {
             color: #e91e63;
@@ -40,10 +30,31 @@
         <div><span class="diag-label">Ping:</span> <span class="diag-value" id="ping">-- ms</span></div>
         <div><span class="diag-label">Requests:</span> <span class="diag-value" id="reqs">0</span></div>
         <div><span class="diag-label">Last Request:</span> <span class="diag-value" id="lastreq">--</span></div>
-        <div style="margin-top:2rem;display:flex;gap:2rem;">
-            <button id="pentest-btn" style="padding:1rem 2.2rem;background:linear-gradient(135deg,#00bcd4 60%,#2196f3 100%);color:#fff;font-weight:bold;font-size:1.2rem;border-radius:12px;border:2px solid #0d47a1;box-shadow:0 2px 12px #2196f355;transition:background 0.2s,transform 0.2s;cursor:pointer;">Penetration Test</button>
-            <button id="ddos-btn" style="padding:1rem 2.2rem;background:linear-gradient(135deg,#e91e63 60%,#ff9800 100%);color:#fff;font-weight:bold;font-size:1.2rem;border-radius:12px;border:2px solid #b71c1c;box-shadow:0 2px 12px #e91e6355;transition:background 0.2s,transform 0.2s;cursor:pointer;">DDoS Attack</button>
-        </div>
+    </div>
+    <div class="server-specs" style="background:rgba(30,30,60,0.93);color:#fff;padding:1.1rem 2rem 1.1rem 2rem;margin:2.2rem auto 0 auto;max-width:600px;border-radius:12px;box-shadow:0 2px 12px #e91e6355;font-size:1.08rem;">
+    <div class="attack-buttons" style="display:flex;justify-content:center;gap:2.5rem;margin:2.5rem auto 0 auto;max-width:600px;">
+        <button id="pentest-btn" style="padding:1.1rem 2.5rem;background:linear-gradient(135deg,#00bcd4 60%,#2196f3 100%);color:#fff;font-weight:bold;font-size:1.2rem;border-radius:14px;border:2px solid #0d47a1;box-shadow:0 2px 12px #2196f355;transition:background 0.2s,transform 0.2s;cursor:pointer;">Penetration Test</button>
+        <button id="ddos-btn" style="padding:1.1rem 2.5rem;background:linear-gradient(135deg,#e91e63 60%,#ff9800 100%);color:#fff;font-weight:bold;font-size:1.2rem;border-radius:14px;border:2px solid #b71c1c;box-shadow:0 2px 12px #e91e6355;transition:background 0.2s,transform 0.2s;cursor:pointer;">DDoS Attack</button>
+    </div>
+        <h3 style="color:#e91e63;margin-top:0;">Server Specs Console</h3>
+        <ul style="text-align:left;line-height:1.7;">
+            <li><b>Test Server 3</b> simulates a server with minimal security and no rate-limiting.</li>
+            <li>Penetration Test: Sends a single POST request to the backend, increments request count, and may trigger a status change if repeated.</li>
+            <li>DDoS Attack: Sends 10 rapid POST requests to simulate a denial-of-service attack. The server is more easily overwhelmed and may quickly enter 'Lagging' or 'Breached' state.</li>
+            <li>Backdoor Challenge: POST to <code>/api/server3/backdoor</code> with the correct secret to breach the server.</li>
+            <li>Diagnostics panel updates every 2 seconds to show real-time status.</li>
+        </ul>
+    </div>
+    <div class="whats-happening" style="background:rgba(20,30,40,0.97);color:#fff;padding:1.2rem 2rem 1.2rem 2rem;margin:2.5rem auto 0 auto;max-width:600px;border-radius:14px;box-shadow:0 2px 12px #e91e6355;font-size:1.1rem;">
+        <h3 style="color:#e91e63;margin-top:0;">What's Happening?</h3>
+        <ul style="text-align:left;line-height:1.7;">
+            <li>This page simulates a vulnerable server for safe penetration testing and DDoS practice.</li>
+            <li>The <b>Live Diagnostics</b> panel shows the server's current status, ping, and request count in real time.</li>
+            <li>Use the <b>Penetration Test</b> and <b>DDoS Attack</b> buttons to simulate attacks and see how the server responds.</li>
+            <li>If you see errors, the backend may be offline or unreachable. Try restarting the backend or check your Codespace URL.</li>
+            <li>You can also use <a href="https://hoppscotch.io/" target="_blank" style="color:#00bcd4;">Hoppscotch</a>, <a href="https://reqbin.com/" target="_blank" style="color:#00bcd4;">ReqBin</a>, or <a href="https://web.postman.co/" target="_blank" style="color:#00bcd4;">Postman Web</a> to test API endpoints directly.</li>
+            <li>All API requests are sent to your backend at <code><span id="backend-url"></span></code>.</li>
+        </ul>
     </div>
         <div class="practice-section" style="background:rgba(30,30,60,0.85);border-radius:12px;padding:1rem;margin:2rem auto;max-width:350px;box-shadow:0 2px 12px #e91e6355;">
             <h2 style="color:#00bcd4;margin-bottom:0.7rem;">Backdoor Challenge</h2>
@@ -59,70 +70,17 @@
             <pre style="background:#1b263b;color:#fff;padding:0.5rem;border-radius:8px;">import requests
     resp = requests.post('http://localhost:8080/api/server3/backdoor', json={"secret": "letmein"})
     print(resp.json())</pre>
+                </div>
+            </div>
+        <!-- Side Console for Site Management -->
+        <div id="side-console" style="position:fixed;top:80px;right:18px;z-index:10001;width:260px;max-width:90vw;background:#232526;border-radius:12px;box-shadow:0 4px 24px #000a;overflow:hidden;font-family:monospace;transition:opacity 0.2s;opacity:0.95;">
+            <div style="padding:1rem 1.2rem 0.5rem 1.2rem;font-weight:bold;color:#90caf9;font-size:1.1rem;">Site Management</div>
+            <div style="padding:0.5rem 1.2rem 1.2rem 1.2rem;display:flex;flex-direction:column;gap:0.7rem;">
+                <button onclick="location.href='/-Main_.html'" style="padding:0.6rem 1rem;background:linear-gradient(135deg,#2196f3 60%,#00bcd4 100%);color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">Go to Homepage</button>
+                <button onclick="location.href='/directory.html'" style="padding:0.6rem 1rem;background:linear-gradient(135deg,#00bcd4 60%,#2196f3 100%);color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">Directory</button>
+                <button onclick="location.reload()" style="padding:0.6rem 1rem;background:linear-gradient(135deg,#e91e63 60%,#ff9800 100%);color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">Reload Page</button>
+                <button onclick="alert('Contact admin at admin@example.com')" style="padding:0.6rem 1rem;background:linear-gradient(135deg,#43e97b 60%,#38f9d7 100%);color:#222;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">Contact Admin</button>
             </div>
         </div>
-    <div id="debugger-panel" style="position:fixed;bottom:0;left:0;width:100vw;background:rgba(30,30,60,0.97);color:#fff;font-family:'Fira Mono',monospace;padding:0.7rem 2rem;z-index:1000;box-shadow:0 -2px 12px #e91e6399;font-size:1rem;display:none;"></div>
-    <script>
-        async function fetchDiagnostics() {
-            try {
-                const res = await fetch('http://localhost:8080/api/server3/diagnostics');
-                if (!res.ok) throw new Error('Backend not available');
-                const data = await res.json();
-                document.getElementById('ping').textContent = data.lastPing + ' ms';
-                document.getElementById('reqs').textContent = data.requests;
-                document.getElementById('lastreq').textContent = data.lastRequest ? new Date(data.lastRequest).toLocaleTimeString() : '--';
-                document.querySelector('.status span').textContent = data.status;
-                document.querySelector('.status span').style.color = data.status === 'Online' ? '#e91e63' : (data.status === 'Lagging' ? '#ff9800' : '#4caf50');
-                hideDebugger();
-            } catch (e) {
-                showDebugger('Diagnostics fetch failed: Backend server not running or unreachable.');
-            }
-        }
-
-        async function sendRequest() {
-            try {
-                const res = await fetch('http://localhost:8080/api/server3/request', { method: 'POST' });
-                if (!res.ok) throw new Error('Backend not available');
-                fetchDiagnostics();
-                hideDebugger();
-            } catch (e) {
-                showDebugger('Penetration Test failed: Backend server not running or unreachable.');
-            }
-        }
-
-        async function sendDDoS() {
-            try {
-                let ok = true;
-                for (let i = 0; i < 10; i++) {
-                    const res = await fetch('http://localhost:8080/api/server3/request', { method: 'POST' });
-                    if (!res.ok) ok = false;
-                }
-                if (!ok) throw new Error('Backend not available');
-                fetchDiagnostics();
-                hideDebugger();
-            } catch (e) {
-                showDebugger('DDoS Attack failed: Backend server not running or unreachable.');
-            }
-        }
-
-        function showDebugger(msg) {
-            const dbg = document.getElementById('debugger-panel');
-            dbg.textContent = msg + ' | Tip: Use ReqBin or Postman Web to test endpoints if backend is unreachable.';
-            dbg.style.display = 'block';
-        }
-        function hideDebugger() {
-            const dbg = document.getElementById('debugger-panel');
-            dbg.textContent = '';
-            dbg.style.display = 'none';
-        }
-
-        // Fetch diagnostics every 2 seconds
-        setInterval(fetchDiagnostics, 2000);
-        fetchDiagnostics();
-
-        // Add event listeners for new buttons
-        document.getElementById('pentest-btn').onclick = sendRequest;
-        document.getElementById('ddos-btn').onclick = sendDDoS;
-    </script>
 </body>
 </html>

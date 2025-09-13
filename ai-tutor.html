@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Coding Tutor</title>
+  <style>
+    body {
+      background: #181c2f url('https://www.transparenttextures.com/patterns/diamond-upholstery.png');
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+    }
+    .tutor-container {
+      max-width: 900px;
+      margin: 4vh auto 0 auto;
+      background: rgba(30,30,60,0.97);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px 0 #2196f355;
+      padding: 2.5rem 3rem 2rem 3rem;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.7rem;
+      margin-bottom: 0.5rem;
+      color: #00bcd4;
+      text-shadow: 2px 2px 8px #2196f3;
+    }
+    .desc {
+      color: #90caf9;
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+    }
+    .search-bar {
+      width: 70%;
+      padding: 0.8rem 1.2rem;
+      border-radius: 12px;
+      border: none;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      background: #232946;
+      color: #fff;
+      box-shadow: 0 2px 8px #2196f355;
+    }
+    .lang-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .lang-card {
+      background: linear-gradient(135deg,#232526 60%,#2196f3 100%);
+      color: #fff;
+      border-radius: 12px;
+      padding: 1.2rem 2rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #2196f355;
+      cursor: pointer;
+      border: 2px solid #00bcd4;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .lang-card:hover {
+      background: linear-gradient(135deg,#2196f3 60%,#232526 100%);
+      color: #fff;
+      transform: scale(1.07);
+    }
+    .lesson-section {
+      background: #232946;
+      border-radius: 14px;
+      padding: 2rem 2rem 1.5rem 2rem;
+      margin-top: 2rem;
+      box-shadow: 0 2px 12px #2196f355;
+      text-align: left;
+      display: none;
+    }
+    .lesson-title {
+      color: #00bcd4;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .lesson-step {
+      margin-bottom: 1.2rem;
+      font-size: 1.08rem;
+    }
+    .code-block {
+      background: #181c2f;
+      color: #fff;
+      font-family: 'Fira Mono', 'Consolas', monospace;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      font-size: 1rem;
+      overflow-x: auto;
+      box-shadow: 0 2px 8px #2196f355;
+    }
+    .back-btn {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.7rem 1.5rem;
+      background: linear-gradient(135deg,#00bcd4 60%,#2196f3 100%);
+      color: #fff;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.1rem;
+      box-shadow: 0 2px 8px #2196f355;
+      border: 2px solid #0d47a1;
+      transition: background 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+    .back-btn:hover {
+      background: linear-gradient(135deg,#2196f3 60%,#00bcd4 100%);
+      color: #fff;
+      transform: scale(1.07);
+    }
+  </style>
+</head>
+<body>
+  <!-- Enhanced Admin Console/DevTools Panel -->
+  <button id="toggle-inpage-devtools" style="position:fixed;bottom:18px;right:18px;z-index:9999;padding:0.7rem 1.5rem;background:linear-gradient(135deg,#232526 60%,#2196f3 100%);color:#fff;border-radius:10px;border:none;font-weight:bold;font-size:1rem;box-shadow:0 2px 8px #2196f355;cursor:pointer;">Dev Tools</button>
+  <div id="inpage-devtools" style="display:none;position:fixed;bottom:70px;right:18px;z-index:10000;width:400px;max-width:90vw;background:#181c24;border-radius:12px;box-shadow:0 4px 24px #000a;overflow:hidden;font-family:monospace;">
+    <div id="devtools-header" style="background:#232526;padding:0.7rem 1rem;color:#90caf9;font-weight:bold;display:flex;align-items:center;justify-content:space-between;cursor:move;">
+      <span>In-Page Dev Tools</span>
+      <div style="display:flex;align-items:center;gap:0.7rem;">
+        <button id="sudo-creator-toggle" style="background:#2196f3;color:#fff;border:none;padding:0.3rem 0.8rem;border-radius:6px;font-weight:bold;cursor:pointer;opacity:0.7;transition:opacity 0.2s;">+ Sudo Cmd</button>
+        <button onclick="document.getElementById('inpage-devtools').style.display='none'" style="background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;">&times;</button>
+      </div>
+    </div>
+    <div id="sudo-creator" style="display:none;background:#232526;padding:1rem;border-bottom:1px solid #333;">
+      <form id="sudo-creator-form" style="display:flex;gap:0.7rem;align-items:center;">
+        <input id="sudo-cmd-name" type="text" placeholder="Command name" style="padding:0.4rem 0.7rem;border-radius:6px;border:none;background:#181c24;color:#fff;" required>
+        <input id="sudo-cmd-js" type="text" placeholder="JS code (args)" style="padding:0.4rem 0.7rem;border-radius:6px;border:none;background:#181c24;color:#fff;flex:1;" required>
+        <button type="submit" style="background:#43e97b;color:#222;border:none;padding:0.4rem 1.1rem;border-radius:6px;font-weight:bold;cursor:pointer;">Add</button>
+      </form>
+    </div>
+    <div id="devtools-console" style="background:#111;padding:1rem;height:120px;overflow:auto;color:#fff;font-size:0.95rem;"></div>
+    <form id="devtools-eval-form" style="display:flex;border-top:1px solid #333;">
+      <input id="devtools-eval-input" type="text" placeholder="Run JS code..." style="flex:1;padding:0.5rem;background:#232526;color:#fff;border:none;font-size:1rem;outline:none;">
+      <button type="submit" style="background:#2196f3;color:#fff;border:none;padding:0 1.2rem;font-weight:bold;cursor:pointer;">Run</button>
+    </form>
+  </div>
+  <div class="tutor-container">
+    <h1>AI Coding Tutor</h1>
+    <div class="desc">Learn any of 700 programming languages with step-by-step, interactive lesson plans.<br>Search or browse below to get started!</div>
+    <input class="search-bar" id="lang-search" type="text" placeholder="Search for a language..." oninput="filterLanguages()">
+    <div class="lang-list" id="lang-list"></div>
+    <div class="lesson-section" id="lesson-section">
+      <div class="lesson-title" id="lesson-title"></div>
+      <div id="lesson-steps"></div>
+      <button class="back-btn" onclick="closeLesson()">Back to Languages</button>
+    </div>
+  </div>
+  <script>
+  // In-page Dev Tools logic
+  const devBtn = document.getElementById('toggle-inpage-devtools');
+  const devPanel = document.getElementById('inpage-devtools');
+  const devConsole = document.getElementById('devtools-console');
+  const devForm = document.getElementById('devtools-eval-form');
+  const devInput = document.getElementById('devtools-eval-input');
+  devBtn.onclick = () => {
+    devPanel.style.display = devPanel.style.display === 'none' ? 'block' : 'none';
+  };
+  // Make DevTools draggable
+  (function() {
+    const panel = devPanel;
+    const header = document.getElementById('devtools-header');
+    let offsetX = 0, offsetY = 0, dragging = false;
+    header.onmousedown = function(e) {
+      dragging = true;
+      offsetX = e.clientX - panel.getBoundingClientRect().left;
+      offsetY = e.clientY - panel.getBoundingClientRect().top;
+      document.body.style.userSelect = 'none';
+    };
+    document.onmousemove = function(e) {
+      if (!dragging) return;
+      panel.style.left = (e.clientX - offsetX) + 'px';
+      panel.style.top = (e.clientY - offsetY) + 'px';
+      panel.style.right = 'auto';
+      panel.style.bottom = 'auto';
+    };
+    document.onmouseup = function() {
+      dragging = false;
+      document.body.style.userSelect = '';
+    };
+  })();
+  // Sudo command creator UI
+  const sudoToggle = document.getElementById('sudo-creator-toggle');
+  const sudoCreator = document.getElementById('sudo-creator');
+  sudoToggle.onmouseenter = () => { sudoCreator.style.display = 'block'; };
+  sudoCreator.onmouseleave = () => { sudoCreator.style.display = 'none'; };
+  document.getElementById('sudo-creator-form').onsubmit = function(e) {
+    e.preventDefault();
+    const name = document.getElementById('sudo-cmd-name').value.trim();
+    const code = document.getElementById('sudo-cmd-js').value.trim();
+    if (!name || !code) return;
+    if (window.userCommands) {
+      window.userCommands[name] = new Function('args', code);
+    } else {
+      window.userCommands = { [name]: new Function('args', code) };
+    }
+    devConsole.innerHTML += `<div style='color:#43e97b;'>[sudo]</div> <span>Custom $sudo ${name} added!</span><br>`;
+    document.getElementById('sudo-cmd-name').value = '';
+    document.getElementById('sudo-cmd-js').value = '';
+    sudoCreator.style.display = 'none';
+  };
+  // Capture console.log
+  (function(){
+    const origLog = console.log;
+    console.log = function(...args) {
+      origLog.apply(console, args);
+      devConsole.innerHTML += `<div style='color:#4caf50;'>[log]</div>` + args.map(a => `<span>${typeof a==='object'?JSON.stringify(a):a}</span>`).join(' ') + '<br>';
+      devConsole.scrollTop = devConsole.scrollHeight;
+    };
+  })();
+  // JS runner
+  devForm.onsubmit = function(e) {
+    e.preventDefault();
+    let code = devInput.value;
+    try {
+      let result = eval(code);
+      devConsole.innerHTML += `<div style='color:#90caf9;'>[eval]</div> <span>${result}</span><br>`;
+    } catch(err) {
+      devConsole.innerHTML += `<div style='color:#e91e63;'>[error]</div> <span>${err}</span><br>`;
+    }
+    devConsole.scrollTop = devConsole.scrollHeight;
+    devInput.value = '';
+  };
+    // Example language data (expand to 700 as needed)
+    const languages = [
+      { name: 'Python', lesson: [
+        'Introduction to Python syntax and variables.',
+        'Write your first print statement.',
+        'Learn about data types: int, float, str, bool.',
+        'Control flow: if, else, for, while.',
+        'Functions and modules.',
+        'Practice: Write a function that returns the sum of two numbers.',
+        'Next steps: Explore Python libraries.'
+      ], code: 'print("Hello, world!")\n\ndef add(a, b):\n    return a + b' },
+      { name: 'JavaScript', lesson: [
+        'Introduction to JavaScript syntax and variables.',
+        'Write your first console.log statement.',
+        'Learn about data types: number, string, boolean, object, array.',
+        'Control flow: if, else, for, while.',
+        'Functions and ES6 features.',
+        'Practice: Write a function that multiplies two numbers.',
+        'Next steps: Explore the DOM and browser APIs.'
+      ], code: 'console.log("Hello, world!");\n\nfunction multiply(a, b) {\n  return a * b;\n}' },
+      { name: 'C', lesson: [
+        'Introduction to C syntax and variables.',
+        'Write your first printf statement.',
+        'Learn about data types: int, float, char.',
+        'Control flow: if, else, for, while.',
+        'Functions and header files.',
+        'Practice: Write a function that returns the max of two numbers.',
+        'Next steps: Explore pointers and memory management.'
+      ], code: '#include <stdio.h>\n\nint max(int a, int b) {\n  return a > b ? a : b;\n}\nprintf("Hello, world!\n");' },
+      { name: 'Java', lesson: [
+          'Introduction to Java syntax and variables.',
+          'Write your first System.out.println statement.',
+          'Learn about data types: int, double, char, boolean.',
+          'Control flow: if, else, for, while.',
+          'Methods and classes.',
+          'Practice: Write a method that checks if a number is prime.',
+          'Next steps: Explore Java collections and streams.'
+        ], code: 'public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello, world!");\n  }\n}\n\nint isPrime(int num) {\n  // ...\n}' },
+      { name: 'Ruby', lesson: [
+        'Introduction to Ruby syntax and variables.',
+        'Write your first puts statement.',
+        'Learn about data types: Integer, Float, String, Boolean.',
+        'Control flow: if, else, case, while.',
+        'Methods and blocks.',
+        'Practice: Write a method that reverses a string.',
+        'Next steps: Explore Ruby gems and Rails.'
+      ], code: 'puts "Hello, world!"\n\ndef reverse_string(str)\n  # ...\nend' },
+      { name: 'PHP', lesson: [
+          'Introduction to PHP syntax and variables.',
+          'Write your first echo statement.',
+          'Learn about data types: int, float, string, bool, array.',
+          'Control flow: if, else, for, while.',
+          'Functions and includes.',
+          'Practice: Write a function that returns the factorial of a number.',
+          'Next steps: Explore PHP frameworks and Composer.'
+        ], code: '<?php\necho "Hello, world!";\n\nfunction factorial($n) {\n  // ...\n}\n?>' },
+      { name: 'Go', lesson: [
+        'Introduction to Go syntax and variables.',
+        'Write your first fmt.Println statement.',
+        'Learn about data types: int, float64, string, bool.',
+        'Control flow: if, else, for, switch.',
+        'Functions and goroutines.',
+        'Practice: Write a function that sorts an array of integers.',
+        'Next steps: Explore Go channels and context.'
+      ], code: 'package main\n\nimport "fmt"\n\nfunc main() {\n  fmt.Println("Hello, world!")\n}\n\nfunc sortArray(arr []int) []int {\n  // ...\n}' },
+      { name: 'Kotlin', lesson: [
+        'Introduction to Kotlin syntax and variables.',
+        'Write your first println statement.',
+        'Learn about data types: Int, Double, String, Boolean.',
+        'Control flow: if, else, when, for.',
+        'Functions and lambdas.',
+        'Practice: Write a function that checks if a string is a palindrome.',
+        'Next steps: Explore Kotlin coroutines and Flow.'
+      ], code: 'fun main() {\n  println("Hello, world!")\n}\n\nfun isPalindrome(str: String): Boolean {\n  // ...\n}' },
+      { name: 'Rust', lesson: [
+        'Introduction to Rust syntax and variables.',
+        'Write your first println! statement.',
+        'Learn about data types: i32, f64, char, bool.',
+        'Control flow: if, else, loop, match.',
+        'Functions and ownership.',
+        'Practice: Write a function that removes duplicates from a vector.',
+        'Next steps: Explore Rust iterators and patterns.'
+      ], code: 'fn main() {\n    println!("Hello, world!");\n}\n\nfn remove_duplicates(vec: &mut Vec<i32>) {\n    // ...\n}' },
+      { name: 'Scala', lesson: [
+        'Introduction to Scala syntax and variables.',
+        'Write your first println statement.',
+        'Learn about data types: Int, Double, String, Boolean.',
+        'Control flow: if, else, match, for.',
+        'Functions and case classes.',
+        'Practice: Write a function that merges two sorted lists.',
+        'Next steps: Explore Scala futures and Akka.'
+      ], code: 'object Main extends App {\n  println("Hello, world!")\n}\n\ndef mergeSortedLists(list1: List[Int], list2: List[Int]): List[Int] = {\n  // ...\n}' },
+      { name: 'Perl', lesson: [
+        'Introduction to Perl syntax and variables.',
+        'Write your first print statement.',
+        'Learn about data types: scalars, arrays, hashes.',
+        'Control flow: if, else, unless, for.',
+        'Subroutines and packages.',
+        'Practice: Write a subroutine that calculates the Fibonacci sequence.',
+        'Next steps: Explore Perl CPAN modules.'
+      ], code: '#!/usr/bin/perl\n\nprint "Hello, world!\\n";\n\nsub fibonacci {\n  # ...\n}' },
+      { name: 'Lua', lesson: [
+        'Introduction to Lua syntax and variables.',
+        'Write your first print statement.',
+        'Learn about data types: nil, boolean, number, string, table.',
+        'Control flow: if, else, for, while.',
+        'Functions and modules.',
+        'Practice: Write a function that calculates the square root using Newton\'s method.',
+        'Next steps: Explore Lua coroutines and Love2D framework.'
+      ], code: '-- Lua script\nprint("Hello, world!")\n\nfunction newtons_method(x)\n  -- ...\nend' },
+      { name: 'Haskell', lesson: [
+        'Introduction to Haskell syntax and variables.',
+        'Write your first putStrLn statement.',
+        'Learn about data types: Int, Float, Char, Bool.',
+        'Control flow: if, then, else, case.',
+        'Functions and type classes.',
+        'Practice: Write a function that counts the number of vowels in a string.',
+        'Next steps: Explore Haskell monads and applicatives.'
+      ], code: 'main = putStrLn "Hello, world!"\n\ncountVowels :: String -> Int\ncountVowels str = length (filter isVowel str)\n  where isVowel c = c `elem` "aeiouAEIOU"' },
+      { name: 'C++', lesson: [
+        'Introduction to C++ syntax and variables.',
+        'Write your first cout statement.',
+        'Learn about data types: int, float, char, string.',
+        'Control flow: if, else, for, while.',
+        'Functions and classes.',
+        'Practice: Write a function that swaps two numbers.',
+        'Next steps: Explore C++ STL and smart pointers.'
+      ], code: '#include <iostream>\nusing namespace std;\n\nint main() {\n  cout << "Hello, world!" << endl;\n}\n\nvoid swap(int &a, int &b) {\n  // ...\n}' },
+      { name: 'Shell', lesson: [
+        'Introduction to Shell scripting.',
+        'Write your first echo command.',
+        'Learn about variables, conditionals, and loops.',
+        'Functions and script arguments.',
+        'Practice: Write a script that backs up a directory.',
+        'Next steps: Explore cron jobs and shell utilities.'
+      ], code: '#!/bin/bash\n\necho "Hello, world!"\n\nbackup() {\n  # ...\n}' },
+      { name: 'MATLAB', lesson: [
+        'Introduction to MATLAB syntax and environment.',
+        'Write your first disp statement.',
+        'Learn about matrices, arrays, and data types.',
+        'Control flow: if, else, for, while.',
+        'Functions and scripts.',
+        'Practice: Write a function that plots a sine wave.',
+        'Next steps: Explore MATLAB toolboxes and Simulink.'
+      ], code: '% MATLAB script\ndisp("Hello, world!")\n\nfunction plotSineWave()\n  % ...\nend' },
+      { name: 'COBOL', lesson: [
+        'Introduction to COBOL syntax and structure.',
+        'Write your first DISPLAY statement.',
+        'Learn about data types: PIC 9, PIC X, COMP.',
+        'Control flow: IF, EVALUATE, PERFORM.',
+        'Paragraphs and sections.',
+        'Practice: Write a program that calculates the area of a circle.',
+        'Next steps: Explore COBOL file handling and reports.'
+      ], code: '       IDENTIFICATION DIVISION.\n       PROGRAM-ID. HelloWorld.\n       PROCEDURE DIVISION.\n           DISPLAY "Hello, world!"\n           STOP RUN.\n\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01  radius        PIC 9(3)V99.\n       01  area          PIC 9(4)V99.' },
+      { name: 'Fortran', lesson: [
+        'Introduction to Fortran syntax and structure.',
+        'Write your first PRINT statement.',
+        'Learn about data types: INTEGER, REAL, CHARACTER.',
+        'Control flow: IF, DO, SELECT CASE.',
+        'Functions and modules.',
+        'Practice: Write a program that converts Celsius to Fahrenheit.',
+        'Next steps: Explore Fortran arrays and file I/O.'
+      ], code: 'PROGRAM HelloWorld\n  PRINT *, "Hello, world!"\nEND PROGRAM HelloWorld\n\nFUNCTION celsiusToFahrenheit(celsius)\n  ! ...\nEND FUNCTION' },
+      { name: 'Ada', lesson: [
+        'Introduction to Ada syntax and structure.',
+        'Write your first Put_Line statement.',
+        'Learn about data types: Integer, Float, Boolean, Character.',
+        'Control flow: If, Case, Loops.',
+        'Procedures and packages.',
+        'Practice: Write a program that calculates the roots of a quadratic equation.',
+        'Next steps: Explore Ada tasking and real-time systems.'
+      ], code: 'with Ada.Text_IO;\nuse Ada.Text_IO;\n\nprocedure Hello is\nbegin\n  Put_Line("Hello, world!");\nend Hello;\n\nfunction QuadraticRoots(a, b, c: Float) return Float is\n  -- ...\nend QuadraticRoots;' },
+      { name: 'Lisp', lesson: [
+        'Introduction to Lisp syntax and environment.',
+        'Write your first print statement.',
+        'Learn about atoms, lists, and data types.',
+        'Control flow: if, cond, loop.',
+        'Functions and macros.',
+        'Practice: Write a function that computes the factorial of a number.',
+        'Next steps: Explore Lisp continuations and threading.'
+      ], code: '(print "Hello, world!")\n\n(defun factorial (n)\n  ;; ...\n)' },
+      { name: 'Prolog', lesson: [
+        'Introduction to Prolog syntax and logic programming.',
+        'Write your first write statement.',
+        'Learn about facts, rules, and queries.',
+        'Control flow: if, else, repeat.',
+        'Recursion and backtracking.',
+        'Practice: Write a program that solves the Towers of Hanoi.',
+        'Next steps: Explore Prolog lists and cuts.'
+      ], code: '% Prolog program\nwrite("Hello, world!"), nl.\n\n% Towers of Hanoi solution\nmove(1, A, B, C) :-\n  % ...\n' },
+      { name: 'Scheme', lesson: [
+        'Introduction to Scheme syntax and environment.',
+        'Write your first display statement.',
+        'Learn about pairs, lists, and data types.',
+        'Control flow: if, cond, let.',
+        'Functions and higher-order functions.',
+        'Practice: Write a function that merges two sorted lists.',
+        'Next steps: Explore Scheme macros and continuations.'
+      ], code: '(display "Hello, world!")\n\n(define (merge-sorted lst1 lst2)\n  ;; ...\n)' },
+      { name: 'OCaml', lesson: [
+        'Introduction to OCaml syntax and functional programming.',
+        'Write your first print_endline statement.',
+        'Learn about tuples, lists, and data types.',
+        'Control flow: if, match, for.',
+        'Functions and modules.',
+        'Practice: Write a function that calculates the sum of a list.',
+        'Next steps: Explore OCaml functors and polymorphic variants.'
+      ], code: 'print_endline "Hello, world!";;\n\nlet rec sum_list lst = match lst with\n  | [] -> 0\n  | head :: tail -> head + sum_list tail;;' },
+      { name: 'F#', lesson: [
+        'Introduction to F# syntax and functional programming.',
+        'Write your first printfn statement.',
+        'Learn about records, discriminated unions, and data types.',
+        'Control flow: if, match, for.',
+        'Functions and modules.',
+        'Practice: Write a function that filters even numbers from a list.',
+        'Next steps: Explore F# computation expressions and type providers.'
+      ], code: 'printfn "Hello, world!"\n\nlet rec filter_even_numbers lst =\n  match lst with\n  | [] -> []\n  | head :: tail -> if head % 2 = 0 then head :: filter_even_numbers tail else filter_even_numbers tail' },
+      { name: 'R', lesson: [
+        'Introduction to R syntax and environment.',
+        'Write your first print statement.',
+        'Learn about vectors, lists, and data types.',
+        'Control flow: if, else, for, while.',
+        'Functions and packages.',
+        'Practice: Write a function that normalizes a vector.',
+        'Next steps: Explore R data frames and ggplot2.'
+      ], code: '# R script\nprint("Hello, world!")\n\nnormalize_vector <- function(v) {\n  # ...\n}' },
+      { name: 'Dart', lesson: [
+        'Introduction to Dart syntax and variables.',
+        'Write your first print statement.',
+        'Learn about data types: int, double, String, bool.',
+        'Control flow: if, else, for, while.',
+        'Functions and classes.',
+        'Practice: Write a function that checks if a number is even.',
+        'Next steps: Explore Dart futures and streams.'
+      ], code: 'void main() {\n  print("Hello, world!");\n}\n\nbool isEven(int num) {\n  // ...\n}' },
+      { name: 'Elixir', lesson: [
+        'Introduction to Elixir syntax and functional programming.',
+        'Write your first IO.puts statement.',
+        'Learn about atoms, lists, and data types.',
+        'Control flow: if, case, for.',
+        'Functions and modules.',
+        'Practice: Write a function that calculates the length of a list.',
+        'Next steps: Explore Elixir macros and protocols.'
+      ], code: 'IO.puts("Hello, world!")\n\nlength_of_list = fn\n  [] -> 0\n  [_|tail] -> 1 + length_of_list.(tail)\nend' },
+      { name: 'Crystal', lesson: [
+        'Introduction to Crystal syntax and variables.',
+        'Write your first puts statement.',
+        'Learn about data types: Int32, Float64, String, Bool.',
+        'Control flow: if, else, case, for.',
+        'Functions and structs.',
+        'Practice: Write a function that converts Fahrenheit to Celsius.',
+        'Next steps: Explore Crystal shards and macros.'
+      ], code: 'puts "Hello, world!"\n\ndef fahrenheit_to_celsius(f)\n  # ...\nend' },
+      { name: 'Nim', lesson: [
+        'Introduction to Nim syntax and variables.',
+        'Write your first echo statement.',
+        'Learn about data types: int, float, string, bool.',
+        'Control flow: if, else, for, while.',
+        'Procedures and modules.',
+        'Practice: Write a procedure that generates Fibonacci numbers.',
+        'Next steps: Explore Nim macros and templates.'
+      ], code: 'echo "Hello, world!"\n\nproc fibonacci(n: int): int =\n  # ...\n' },
+      { name: 'Pascal', lesson: [
+        'Introduction to Pascal syntax and structure.',
+        'Write your first writeln statement.',
+        'Learn about data types: Integer, Real, Char, String.',
+        'Control flow: if, case, for, while.',
+        'Procedures and functions.',
+        'Practice: Write a program that calculates the area of a triangle.',
+        'Next steps: Explore Pascal file handling and objects.'
+      ], code: 'program HelloWorld;\nbegin\n  writeln("Hello, world!");\nend.\n\nfunction area_of_triangle(base, height: Real): Real;\nbegin\n  // ...\nend;' },
+      { name: 'Modula-2', lesson: [
+        'Introduction to Modula-2 syntax and structure.',
+        'Write your first WriteString statement.',
+        'Learn about data types: INTEGER, REAL, CHAR, BOOLEAN.',
+        'Control flow: IF, CASE, FOR, WHILE.',
+        'Modules and interfaces.',
+        'Practice: Write a program that converts kilometers to miles.',
+        'Next steps: Explore Modula-2 concurrency and systems programming.'
+      ], code: 'MODULE HelloWorld;\nIMPORT InOut;\nBEGIN\n  InOut.WriteString("Hello, world!");\nEND HelloWorld.\n\nINTERFACE\n  PROCEDURE ConvertKmToMiles(km: REAL): REAL;\nEND ConvertKmToMiles;' },
+      { name: 'ALGOL', lesson: [
+        'Introduction to ALGOL syntax and structure.',
+        'Write your first print statement.',
+        'Learn about data types: INTEGER, REAL, BOOLEAN, STRING.',
+        'Control flow: IF, CASE, FOR, WHILE.',
+        'Procedures and blocks.',
+        'Practice: Write a program that calculates the roots of a quadratic equation.',
+        'Next steps: Explore ALGOL file handling and external procedures.'
+      ], code: 'BEGIN\n  Print("Hello, world!");\nEND.\n\nPROCEDURE QuadraticRoots(a, b, c: REAL);\nBEGIN\n  { ... }\nEND QuadraticRoots;' },
+      { name: 'REXX', lesson: [
+        'Introduction to REXX syntax and structure.',
+        'Write your first say statement.',
+        'Learn about variables, conditionals, and loops.',
+        'Functions and stem variables.',
+        'Practice: Write a script that renames files in a directory.',
+        'Next steps: Explore REXX and SQL integration.'
+      ], code: 'say "Hello, world!"\n\n/* REXX script to rename files */\naddress command "rename oldfile.txt newfile.txt"' },
+      { name: 'Smalltalk', lesson: [
+        'Introduction to Smalltalk syntax and environment.',
+        'Write your first Transcript show: statement.',
+        'Learn about objects, classes, and methods.',
+        'Control flow: if, else, case, for.',
+        'Blocks and collections.',
+        'Practice: Write a method that sorts an array of numbers.',
+        'Next steps: Explore Smalltalk MVC and GemStone/S.'
+      ], code: 'Transcript show: "Hello, world!"\n\nObject subclass: #Sorter\n  | array |\n  Sorter class >> sort: anArray\n    "Sort an array of numbers."\n    array := anArray.' },
+      { name: 'ActionScript', lesson: [
+        'Introduction to ActionScript syntax and Flash environment.',
+        'Write your first trace statement.',
+        'Learn about data types: Number, String, Boolean, Object.',
+        'Control flow: if, else, for, while.',
+        'Functions and events.',
+        'Practice: Write a function that animates a movie clip.',
+        'Next steps: Explore ActionScript and Flex integration.'
+      ], code: 'trace("Hello, world!");\n\nfunction animateClip(clip:Object):Void {\n  // ...\n}' },
+      { name: 'VBScript', lesson: [
+        'Introduction to VBScript syntax and Windows scripting.',
+        'Write your first MsgBox statement.',
+        'Learn about data types: Integer, Single, Double, String.',
+        'Control flow: If, Select Case, For, While.',
+        'Functions and procedures.',
+        'Practice: Write a script that monitors system performance.',
+        'Next steps: Explore VBScript and WMI integration.'
+      ], code: 'MsgBox "Hello, world!"\n\nFunction MonitorPerformance()\n  ' },
+      { name: 'JScript', lesson: [
+        'Introduction to JScript syntax and ASP.NET integration.',
+        'Write your first Response.Write statement.',
+        'Learn about data types: Number, String, Boolean, Object.',
+        'Control flow: if, else, for, while.',
+        'Functions and events.',
+        'Practice: Write a function that validates a form.',
+        'Next steps: Explore JScript and AJAX integration.'
+      ], code: 'Response.Write("Hello, world!");\n\nfunction validateForm() {\n  // ...\n}' },
+      { name: 'XSLT', lesson: [
+        'Introduction to XSLT syntax and XML transformation.',
+        'Write your first xsl:template.',
+        'Learn about XPath, XQuery, and data types.',
+        'Control flow: if, choose, for-each.',
+        'Functions and extensions.',
+        'Practice: Write a stylesheet that transforms XML to HTML.',
+        'Next steps: Explore XSLT 2.0 and 3.0 features.'
+      ], code: '<?xml version="1.0" encoding="UTF-8"?>\n<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">\n  <xsl:template match="/">\n    <html>\n      <body>\n        <h2>Hello, world!</h2>\n      </body>\n    </html>\n  </xsl:template>\n</xsl:stylesheet>' },
+      { name: 'OpenCL', lesson: [
+        'Introduction to OpenCL syntax and parallel programming.',
+        'Write your first printf statement.',
+        'Learn about data types: int, float, double, char.',
+        'Control flow: if, for, while, switch.',
+        'Kernels and memory management.',
+        'Practice: Write a kernel that adds two vectors.',
+        'Next steps: Explore OpenCL and CUDA integration.'
+      ], code: '__kernel void hello_kernel(__global const int *a, __global const int *b, __global int *result) {\n  int i = get_global_id(0);\n  result[i] = a[i] + b[i];\n}\n\nprintf("Hello, world!\\n");' },
+      { name: 'VHDL', lesson: [
+        'Introduction to VHDL syntax and hardware description.',
+        'Write your first entity and architecture.',
+        'Learn about data types: BIT, BIT_VECTOR, INTEGER.',
+        'Control flow: if, case, loop.',
+        'Processes and signals.',
+        'Practice: Write a VHDL module that implements a D flip-flop.',
+        'Next steps: Explore VHDL testbenches and synthesis.'
+      ], code: 'library IEEE;\nuse IEEE.STD_LOGIC_1164.ALL;\n\nentity HelloWorld is\nend HelloWorld;\n\narchitecture Behavioral of HelloWorld is\nbegin\n  process\n  begin\n    report "Hello, world!";\n    wait;\n  end process;\nend Behavioral;' },
+      { name: 'Verilog', lesson: [
+        'Introduction to Verilog syntax and hardware description.',
+        'Write your first module and initial block.',
+        'Learn about data types: wire, reg, integer.',
+        'Control flow: if, case, for, while.',
+        'Always blocks and tasks.',
+        'Practice: Write a Verilog module that implements a 4-to-1 multiplexer.',
+        'Next steps: Explore Verilog testbenches and synthesis.'
+      ], code: 'module HelloWorld;\n  initial begin\n    $display("Hello, world!");\n  end\nendmodule\n\nmodule mux4to1(input wire [3:0] i, input wire [1:0] sel, output wire o);\n  // ...\nendmodule' },
+      { name: 'SystemVerilog', lesson: [
+        'Introduction to SystemVerilog syntax and hardware description.',
+        'Write your first module and initial begin block.',
+        'Learn about data types: logic, bit, int, real.',
+        'Control flow: if, case, for, while.',
+        'Always_comb and always_ff blocks.',
+        'Practice: Write a SystemVerilog module that implements a 2-to-4 decoder.',
+        'Next steps: Explore SystemVerilog assertions and coverage.'
+      ], code: 'module HelloWorld;\n  initial begin\n    $display("Hello, world!");\n  end\nendmodule\n\nmodule decoder2to4(input logic [1:0] sel, output logic [3:0] y);\n  // ...\nendmodule' },
+      { name: 'Tcl', lesson: [
+        'Introduction to Tcl syntax and scripting.',
+        'Write your first puts statement.',
+        'Learn about variables, lists, and data types.',
+        'Control flow: if, for, while.',
+        'Procedures and namespaces.',
+        'Practice: Write a script that automates file backups.',
+        'Next steps: Explore Tcl extensions and C integration.'
+      ], code: 'puts "Hello, world!"\n\nproc backup_files {src dest} {\n  # ...\n}' },
+      { name: 'AWK', lesson: [
+        'Introduction to AWK syntax and text processing.',
+        'Write your first print statement.',
+        'Learn about variables, arrays, and data types.',
+        'Control flow: if, for, while.',
+        'Functions and patterns.',
+        'Practice: Write an AWK script that formats CSV files.',
+        'Next steps: Explore AWK and shell integration.'
+      ], code: '#!/usr/bin/awk -f\nBEGIN { print "Hello, world!" }\n\n# AWK script to format CSV files\n{ printf "%-10s %-10s\n", $1, $2 }' },
+      { name: 'Sed', lesson: [
+        'Introduction to Sed syntax and stream editing.',
+        'Write your first s/// command.',
+        'Learn about addresses, ranges, and data types.',
+        'Control flow: if, for, while.',
+        'Functions and scripts.',
+        'Practice: Write a Sed script that replaces text in files.',
+        'Next steps: Explore Sed and awk integration.'
+      ], code: '#!/bin/sed -f\n\n# Sed script to replace text in files\ns/oldtext/newtext/g' },
+      { name: 'Pike', lesson: [
+        'Introduction to Pike syntax and variables.',
+        'Write your first write statement.',
+        'Learn about data types: int, float, string, array.',
+        'Control flow: if, else, for, while.',
+        'Functions and classes.',
+        'Practice: Write a function that encodes a string in Base64.',
+        'Next steps: Explore Pike modules and extensions.'
+      ], code: 'write("Hello, world!\\n");\n\nstring base64_encode(string input) {\n  // ...\n}' },
+      { name: 'Chapel', lesson: [
+        'Introduction to Chapel syntax and parallel programming.',
+        'Write your first writeln statement.',
+        'Learn about data types: int, real, string, bool.',
+        'Control flow: if, for, while.',
+        'Functions and domains.',
+        'Practice: Write a function that computes the dot product of two vectors.',
+        'Next steps: Explore Chapel tasks and atomic operations.'
+      ], code: 'writeln("Hello, world!");\n\ndot_product(a: [1..n] int, b: [1..n] int) : int {\n  // ...\n}' },
+      { name: 'NATURAL', lesson: [
+        'Introduction to NATURAL syntax and business programming.',
+        'Write your first DISPLAY statement.',
+        'Learn about data types: INTEGER, DECIMAL, CHAR.',
+        'Control flow: IF, CASE, PERFORM.',
+        'Subroutines and reports.',
+        'Practice: Write a program that generates an invoice.',
+        'Next steps: Explore NATURAL and Adabas integration.'
+      ], code: 'DEFINE DATA LOCAL\n1 EMPLOYEE VIEW OF EMPLOYEE-FILE\n  2 EMP-NAME\n  2 EMP-SALARY\nEND-DEFINE\n\nWRITE "Hello, world!"\n\nEND' },
+      { name: 'REXX', lesson: [
+        'Introduction to REXX syntax and scripting.',
+        'Write your first SAY statement.',
+        'Learn about variables, conditionals, and loops.',
+        'Functions and stem variables.',
+        'Practice: Write a script that renames files in a directory.',
+        'Next steps: Explore REXX and SQL integration.'
+      ], code: 'SAY "Hello, world!"\n\n/* REXX script to rename files */\nADDRESS COMMAND "RENAME OLDFILE.TXT NEWFILE.TXT"' },
+      { name: 'OpenEdge ABL', lesson: [
+        'Introduction to OpenEdge ABL syntax and Progress 4GL.',
+        'Write your first DISPLAY statement.',
+        'Learn about data types: INTEGER, DECIMAL, CHARACTER.',
+        'Control flow: IF, CASE, DO WHILE.',
+        'Procedures and functions.',
+        'Practice: Write a program that manages a customer database.',
+        'Next steps: Explore OpenEdge ABL and database integration.'
+      ], code: 'DEFINE VARIABLE cHello AS CHARACTER NO-UNDO.\n\ncHello = "Hello, world!".\nDISPLAY cHello.' },
+      { name: 'Inform', lesson: [
+        'Introduction to Inform 7 syntax and interactive fiction.',
+        'Write your first say statement.',
+        'Learn about topics, verbs, and nouns.',
+        'Control flow: if, otherwise, repeat.',
+        'Rules and actions.',
+        'Practice: Write a simple interactive story.',
+        'Next steps: Explore Inform 7 extensions and Glulx.'
+      ], code: 'The Kitchen is a room.\n\nInstead of examining the kitchen:\n  say "You see a clean and tidy kitchen.";' },
+      { name: 'PureBasic', lesson: [
+        'Introduction to PureBasic syntax and game programming.',
+        'Write your first PrintN statement.',
+        'Learn about data types: Long, Float, String.',
+        'Control flow: If, Select, For, While.',
+        'Procedures and macros.',
+        'Practice: Write a program that draws a circle.',
+        'Next steps: Explore PureBasic and 3D programming.'
+      ], code: 'MessageRequester("Hello, world!", "Welcome to PureBasic!")\n\nProcedure DrawCircle()\n  ; ...\nEndProcedure' },
+      { name: 'BlitzMax', lesson: [
+        'Introduction to BlitzMax syntax and game programming.',
+        'Write your first Print statement.',
+        'Learn about data types: Int, Float, String.',
+        'Control flow: If, For, While.',
+        'Functions and modules.',
+        'Practice: Write a program that plays a sound.',
+        'Next steps: Explore BlitzMax and 3D graphics.'
+      ], code: 'Print "Hello, world!"\n\nFunction PlaySound()\n  ; ...\nEnd Function' },
+      { name: 'DarkBASIC', lesson: [
+        'Introduction to DarkBASIC syntax and game programming.',
+        'Write your first Print statement.',
+        'Learn about data types: Integer, Single, String.',
+        'Control flow: If, For, While.',
+        'Commands and functions.',
+        'Practice: Write a program that moves an object.',
+        'Next steps: Explore DarkBASIC and DirectX.'
+      ], code: 'Print "Hello, world!"\n\nSync\n\nEnd' },
+      { name: 'AGC', lesson: [
+        'Introduction to AGC assembly language and Apollo Guidance Computer.',
+        'Write your first TC statement.',
+        'Learn about data types: A, B, C, D, E, F.',
+        'Control flow: CAF, CS, CC, CAI.',
+        'Registers and memory.',
+        'Practice: Write a program that adds two numbers.',
+        'Next steps: Explore AGC programming and lunar lander simulation.'
+      ], code: 'LUMINARY  \n  TC "Hello, world!"\n  CAF 0  \n  CS  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n  C  \n

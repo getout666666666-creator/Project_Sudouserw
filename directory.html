@@ -93,7 +93,10 @@
             const consoleDiv = document.getElementById('console');
             consoleDiv.textContent = 'Loading network specs...';
             fetch('http://localhost:8080/api/network/specs')
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error('Backend not available');
+                    return res.json();
+                })
                 .then(data => {
                     consoleDiv.textContent =
                         `Network Specs:\n` +
@@ -103,7 +106,7 @@
                         `Uptime: ${data.uptime}\n` +
                         `Active Connections: ${data.connections}`;
                 })
-                .catch(() => {
+                .catch((err) => {
                     consoleDiv.textContent = 'Unable to fetch network specs. Is the backend running?';
                 });
         }

@@ -96,73 +96,77 @@
         <div class="diag-row"><span class="diag-label">Last Request:</span> <span class="diag-value" id="lastreq">--</span></div>
         <div class="diag-buttons">
             <button class="diag-btn" onclick="sendRequest()">Start Penetration Test</button>
-                <button class="diag-btn ddos" onclick="sendDDoS()">Start DDoS Attack</button>
+            <button class="diag-btn ddos" onclick="sendDDoS()">Start DDoS Attack</button>
         </div>
     </div>
-    <div id="debugger-panel" style="position:fixed;bottom:0;left:0;width:100vw;background:rgba(30,30,60,0.97);color:#fff;font-family:'Fira Mono',monospace;padding:0.7rem 2rem;z-index:1000;box-shadow:0 -2px 12px #4caf5055;font-size:1rem;display:none;"></div>
-    <script>
-        async function fetchDiagnostics() {
-            try {
-                const res = await fetch('http://localhost:8080/api/server1/diagnostics');
-                if (!res.ok) throw new Error('Backend not available');
-                const data = await res.json();
-                document.getElementById('ping').textContent = data.lastPing + ' ms';
-                document.getElementById('reqs').textContent = data.requests;
-                document.getElementById('lastreq').textContent = data.lastRequest ? new Date(data.lastRequest).toLocaleTimeString() : '--';
-                document.getElementById('status').textContent = data.status;
-                document.getElementById('status').style.color = data.status === 'Online' ? '#4caf50' : (data.status === 'Lagging' ? '#ff9800' : '#e91e63');
-                hideDebugger();
-            } catch (e) {
-                showDebugger('Diagnostics fetch failed: Backend server not running or unreachable.');
-            }
-        }
+    <div class="server-specs" style="background:rgba(30,30,60,0.93);color:#fff;padding:1.1rem 2rem 1.1rem 2rem;margin:2.2rem auto 0 auto;max-width:600px;border-radius:12px;box-shadow:0 2px 12px #4caf5055;font-size:1.08rem;">
+        <h3 style="color:#4caf50;margin-top:0;">Server Specs Console</h3>
+        <ul style="text-align:left;line-height:1.7;">
+            <li><b>Test Server 1</b> simulates a server with strong security and basic rate-limiting.</li>
+            <li>Penetration Test: Sends a single POST request to the backend, increments request count, and may trigger a status change if repeated.</li>
+            <li>DDoS Attack: Sends 10 rapid POST requests to simulate a denial-of-service attack. The server is resilient but may enter 'Lagging' or 'Breached' state if overwhelmed.</li>
+            <li>Backdoor Challenge: POST to <code>/api/server1/backdoor</code> with the correct secret to breach the server.</li>
+            <li>Diagnostics panel updates every 2 seconds to show real-time status.</li>
+        </ul>
+        <div id="side-console-toggle-1" style="margin-top:1.2rem;cursor:pointer;color:#4caf50;font-weight:bold;">▶ Show Code & Annotations</div>
+        <div id="side-console-1" style="display:none;background:#101820;color:#fff;padding:1.1rem 1.5rem 1.1rem 1.5rem;margin-top:1rem;border-radius:10px;box-shadow:0 2px 12px #4caf5055;font-size:0.98rem;overflow-x:auto;">
+<pre style="margin:0;white-space:pre-wrap;word-break:break-word;">
+// Penetration Test button
+async function sendRequest() {
+    // Sends a POST to /api/server1/request
+    const res = await fetch(`${backend}/api/server1/request`, { method: 'POST' });
+    // Increments request count, may change status
+}
 
-            async function sendRequest() {
-                try {
-                    const res = await fetch('http://localhost:8080/api/server1/request', { method: 'POST' });
-                    if (!res.ok) throw new Error('Backend not available');
-                    fetchDiagnostics();
-                    hideDebugger();
-                } catch (e) {
-                    showDebugger('Penetration Test failed: Backend server not running or unreachable.');
-                }
-            }
+// DDoS Attack button
+async function sendDDoS() {
+    // Sends 10 rapid POSTs to /api/server1/request
+    for (let i = 0; i < 10; i++) {
+        await fetch(`${backend}/api/server1/request`, { method: 'POST' });
+    }
+    // May cause server to lag or breach
+}
 
-            async function sendDDoS() {
-                try {
-                    let ok = true;
-                    for (let i = 0; i < 10; i++) {
-                        const res = await fetch('http://localhost:8080/api/server1/request', { method: 'POST' });
-                        if (!res.ok) ok = false;
-                    }
-                    if (!ok) throw new Error('Backend not available');
-                    fetchDiagnostics();
-                    hideDebugger();
-                } catch (e) {
-                    showDebugger('DDoS Attack failed: Backend server not running or unreachable.');
-                }
+// Backdoor Challenge
+// POST {"secret": "letmein"} to /api/server1/backdoor
+// If correct, server status becomes 'Breached'
+</pre>
+        </div>
+        <script>
+        document.getElementById('side-console-toggle-1').onclick = function() {
+            const sc = document.getElementById('side-console-1');
+            if (sc.style.display === 'none') {
+                sc.style.display = 'block';
+                this.textContent = '▼ Hide Code & Annotations';
+            } else {
+                sc.style.display = 'none';
+                this.textContent = '▶ Show Code & Annotations';
             }
-
-            function showDebugger(msg) {
-                const dbg = document.getElementById('debugger-panel');
-                dbg.textContent = msg + ' | Tip: Use ReqBin or Postman Web to test endpoints if backend is unreachable.';
-                dbg.style.display = 'block';
-            }
-            function hideDebugger() {
-                const dbg = document.getElementById('debugger-panel');
-                dbg.textContent = '';
-                dbg.style.display = 'none';
-            }
-
-        function startDDoS() {
-            for (let i = 0; i < 100; i++) {
-                fetch('http://localhost:8080/api/server1/request', { method: 'POST' });
-            }
-            setTimeout(fetchDiagnostics, 1000);
-        }
-
-        setInterval(fetchDiagnostics, 2000);
-        fetchDiagnostics();
-    </script>
+        };
+        </script>
+    </div>
+    </div>
+    <div class="whats-happening" style="background:rgba(20,30,40,0.97);color:#fff;padding:1.2rem 2rem 1.2rem 2rem;margin:2.5rem auto 0 auto;max-width:600px;border-radius:14px;box-shadow:0 2px 12px #4caf5055;font-size:1.1rem;">
+        <h3 style="color:#4caf50;margin-top:0;">What's Happening?</h3>
+        <ul style="text-align:left;line-height:1.7;">
+            <li>This page simulates a vulnerable server for safe penetration testing and DDoS practice.</li>
+            <li>The <b>Live Diagnostics</b> panel shows the server's current status, ping, and request count in real time.</li>
+            <li>Use the <b>Penetration Test</b> and <b>DDoS Attack</b> buttons to simulate attacks and see how the server responds.</li>
+            <li>If you see errors, the backend may be offline or unreachable. Try restarting the backend or check your Codespace URL.</li>
+            <li>You can also use <a href="https://hoppscotch.io/" target="_blank" style="color:#00bcd4;">Hoppscotch</a>, <a href="https://reqbin.com/" target="_blank" style="color:#00bcd4;">ReqBin</a>, or <a href="https://web.postman.co/" target="_blank" style="color:#00bcd4;">Postman Web</a> to test API endpoints directly.</li>
+            <li>All API requests are sent to your backend at <code><span id="backend-url"></span></code>.</li>
+        </ul>
+    </div>
+    </div>
+    <!-- Side Console for Site Management -->
+    <div id="side-console" style="position:fixed;top:80px;right:18px;z-index:10001;width:260px;max-width:90vw;background:#232526;border-radius:12px;box-shadow:0 4px 24px #000a;overflow:hidden;font-family:monospace;transition:opacity 0.2s;opacity:0.95;">
+        <div style="padding:1rem 1.2rem 0.5rem 1.2rem;font-weight:bold;color:#90caf9;font-size:1.1rem;">Site Management</div>
+        <div style="padding:0.5rem 1.2rem 1.2rem 1.2rem;display:flex;flex-direction:column;gap:0.7rem;">
+            <button onclick="location.href='/-Main_.html'" style="padding:0.6rem 1rem;background:linear-gradient(135deg,#2196f3 60%,#00bcd4 100%);color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">Go to Homepage</button>
+            <button onclick="location.href='/directory.html'" style="padding:0.6rem 1rem;background:linear-gradient(135deg,#00bcd4 60%,#2196f3 100%);color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">Directory</button>
+            <button onclick="location.reload()" style="padding:0.6rem 1rem;background:linear-gradient(135deg,#e91e63 60%,#ff9800 100%);color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">Reload Page</button>
+            <button onclick="alert('Contact admin at admin@example.com')" style="padding:0.6rem 1rem;background:linear-gradient(135deg,#43e97b 60%,#38f9d7 100%);color:#222;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">Contact Admin</button>
+        </div>
+    </div>
 </body>
 </html>

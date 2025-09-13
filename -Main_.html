@@ -4,6 +4,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Sudo - Home</title>
+    <link href="https://fonts.googleapis.com/css?family=Fira+Mono:400,700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #181c24; color: #fff; font-family: 'Fira Mono', monospace; margin: 0; padding: 0; }
+        .container { max-width: 900px; margin: 3rem auto; background: rgba(30,30,60,0.97); border-radius: 18px; box-shadow: 0 2px 24px #2196f355; padding: 2.5rem 3rem; }
+        h1 { color: #2196f3; font-size: 2.5rem; margin-bottom: 0.5em; }
+        .nav { margin-bottom: 2.5rem; }
+        .nav a { color: #90caf9; text-decoration: none; font-weight: bold; margin-right: 2.5rem; font-size: 1.2rem; }
+        .nav a:hover { color: #fff; text-decoration: underline; }
+        .desc { color: #b0bec5; font-size: 1.2rem; margin-bottom: 2.5rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Project Sudo</h1>
+        <div class="nav">
+            <a href="-Main_.html">Home</a>
+            <a href="ai-tutor.html">AI Tutor</a>
+            <a href="directory.html">Directory</a>
+            <a href="login.html">Login</a>
+            <a href="dashboard.html">Dashboard</a>
+        </div>
+        <div class="desc">
+            Welcome to Project Sudo! This is your developer and admin hub.<br>
+            Use the navigation above to access the AI Tutor, directory, login, and dashboard.
+        </div>
+        <!-- Additional homepage content can go here -->
+    </div>
+    <!-- Enhanced Admin Console/DevTools Panel -->
+    <div id="admin-console-panel" style="position:fixed;bottom:0;left:0;width:100vw;background:rgba(20,30,40,0.98);color:#fff;font-family:'Fira Mono',monospace;padding:0.7rem 2rem;z-index:1000;box-shadow:0 -2px 12px #4caf5055;font-size:1rem;display:none;max-height:40vh;overflow-y:auto;">
+        <div id="admin-console-output" style="min-height:2.5em;"></div>
+        <input id="admin-console-input" type="text" placeholder="Type $sudo help or your command..." style="width:90%;background:#222;color:#fff;border:none;padding:0.5em 1em;border-radius:8px;margin-top:0.7em;font-size:1em;outline:none;" onkeydown="if(event.key==='Enter'){runAdminCommand();}">
+    </div>
+    <button onclick="toggleAdminConsole()" style="position:fixed;bottom:18px;right:18px;z-index:9999;padding:0.7rem 1.5rem;background:linear-gradient(135deg,#232526 60%,#2196f3 100%);color:#fff;border-radius:10px;border:none;font-weight:bold;font-size:1rem;box-shadow:0 2px 8px #2196f355;cursor:pointer;">Admin Console</button>
+    <script>
+    let adminConsoleVisible = false;
+    let userCommands = {};
+    const defaultCommands = {
+        help: () => '$sudo help - Show this help.\n$sudo clear - Clear output.\n$sudo status - Show server status.\n$sudo echo <msg> - Print a message.\n$sudo define <name> <js> - Define a custom command.',
+        clear: () => { document.getElementById('admin-console-output').textContent = ''; return ''; },
+        status: () => 'Server status: Online',
+        echo: (args) => args.join(' '),
+        define: (args) => {
+            const name = args[0];
+            const code = args.slice(1).join(' ');
+            if(!name||!code) return 'Usage: $sudo define <name> <js>'; 
+            userCommands[name] = new Function('args', code);
+            return `Custom command $sudo ${name} defined!`;
+        }
+    };
+    function toggleAdminConsole() {
+        adminConsoleVisible = !adminConsoleVisible;
+        document.getElementById('admin-console-panel').style.display = adminConsoleVisible ? 'block' : 'none';
+        if(adminConsoleVisible) document.getElementById('admin-console-input').focus();
+    }
+    function appendAdminOutput(msg) {
+        const out = document.getElementById('admin-console-output');
+        out.textContent += (out.textContent ? '\n' : '') + msg;
+        out.scrollTop = out.scrollHeight;
+    }
+    function runAdminCommand() {
+        const input = document.getElementById('admin-console-input');
+        let val = input.value.trim();
+        if(!val.startsWith('$sudo')) { appendAdminOutput('Prefix commands with $sudo'); input.value=''; return; }
+        val = val.replace('$sudo','').trim();
+        const [cmd,...args] = val.split(' ');
+        let result = '';
+        if(userCommands[cmd]) {
+            try { result = userCommands[cmd](args) || ''; } catch(e) { result = 'Error: '+e.message; }
+        } else if(defaultCommands[cmd]) {
+            try { result = defaultCommands[cmd](args) || ''; } catch(e) { result = 'Error: '+e.message; }
+        } else {
+            result = `Unknown command: $sudo ${cmd}`;
+        }
+        if(result) appendAdminOutput(result);
+        input.value = '';
+    }
+    document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='`'){toggleAdminConsole();}});
+    </script>
+</body>
+</html>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project sudo_user</title>
     <style>
         body {
@@ -160,8 +243,8 @@
                             <h2>Easy Backend Access Practice</h2>
                             <div class="instructions">No downloads or terminal required! You can interact with the backend using your browser and online tools. If the backend is unreachable, use these methods:</div>
                             <ul style="text-align:left;color:#fff;margin-bottom:1rem;">
-                                <li>Use <a href="https://reqbin.com/" target="_blank" style="color:#00bcd4;text-decoration:underline;">ReqBin</a> or <a href="https://web.postman.co/" target="_blank" style="color:#00bcd4;text-decoration:underline;">Postman Web</a> to send HTTP requests to backend endpoints directly from your browser.</li>
-                                <li>If the backend is unreachable, copy the endpoint URL (e.g., <code>http://localhost:8080/api/server1/diagnostics</code>) and paste it into ReqBin or Postman Web to test requests and see responses.</li>
+                                <li>Use <a href="https://reqbin.com/" target="_blank" style="color:#00bcd4;text-decoration:underline;">ReqBin</a>, <a href="https://web.postman.co/" target="_blank" style="color:#00bcd4;text-decoration:underline;">Postman Web</a>, or <a href="https://hoppscotch.io/" target="_blank" style="color:#00bcd4;text-decoration:underline;">Hoppscotch</a> to send HTTP requests to backend endpoints directly from your browser.</li>
+                                <li>If the backend is unreachable, copy the endpoint URL (e.g., <code>http://localhost:8080/api/server1/diagnostics</code>) and paste it into ReqBin, Postman Web, or Hoppscotch to test requests and see responses.</li>
                                 <li>Use browser JavaScript console: <span class="code-block">fetch('http://localhost:8080/api/server1/diagnostics').then(r => r.json()).then(console.log)</span></li>
                             </ul>
                             <div class="instructions">All backend endpoints are documented below. You can practice penetration tests and DDoS attacks by sending requests to these endpoints using online tools or your browser:</div>
@@ -197,15 +280,25 @@
                                     `;
                                     return card;
                                 }
+                                // Use Codespaces public URL if available, else fallback to localhost
+                                // Use same origin for backend requests (unified server)
+                                const backendUrl = window.location.origin;
                                 function updateServerCard(server) {
-                                    fetch(`http://localhost:8080/api/${server.id}/diagnostics`).then(res => res.json()).then(data => {
+                                    fetch(`${backendUrl}/api/${server.id}/diagnostics`).then(res => {
+                                        if (!res.ok) throw new Error('Backend not available');
+                                        return res.json();
+                                    }).then(data => {
                                         document.getElementById(`${server.id}-status`).textContent = data.status;
                                         document.getElementById(`${server.id}-status`).style.color = data.status === 'Online' ? server.color : (data.status === 'Lagging' ? '#ff9800' : '#e91e63');
                                         document.getElementById(`${server.id}-ping`).textContent = data.lastPing + ' ms';
                                         document.getElementById(`${server.id}-reqs`).textContent = data.requests;
                                         document.getElementById(`${server.id}-lastreq`).textContent = data.lastRequest ? new Date(data.lastRequest).toLocaleTimeString() : '--';
+                                    }).catch(() => {
+                                        showError('Failed to fetch diagnostics: Backend server not running or unreachable.');
                                     });
                                 }
+                                let lastErrorMsg = '';
+                                let errorTimeout = null;
                                 function showError(msg) {
                                     let errDiv = document.getElementById('backend-error');
                                     if (!errDiv) {
@@ -214,12 +307,15 @@
                                         errDiv.style = 'color:#e91e63;font-weight:bold;margin:1rem 0;text-align:center;';
                                         dash.parentNode.insertBefore(errDiv, dash);
                                     }
-                                    errDiv.innerHTML = msg + '<br>If you do not have a terminal, use <a href="https://reqbin.com/" target="_blank" style="color:#00bcd4;text-decoration:underline;">ReqBin</a> or <a href="https://web.postman.co/" target="_blank" style="color:#00bcd4;text-decoration:underline;">Postman Web</a> to test backend endpoints.';
-                                    setTimeout(() => { errDiv.textContent = ''; }, 7000);
+                                    if (errDiv.innerHTML === msg) return; // Prevent flicker/repeat
+                                    errDiv.innerHTML = msg + '<br>If you do not have a terminal, use <a href="https://reqbin.com/" target="_blank" style="color:#00bcd4;text-decoration:underline;">ReqBin</a>, <a href="https://web.postman.co/" target="_blank" style="color:#00bcd4;text-decoration:underline;">Postman Web</a>, or <a href="https://hoppscotch.io/" target="_blank" style="color:#00bcd4;text-decoration:underline;">Hoppscotch</a> to test backend endpoints.';
+                                    if (errorTimeout) clearTimeout(errorTimeout);
+                                    errorTimeout = setTimeout(() => { errDiv.textContent = ''; lastErrorMsg = ''; }, 7000);
+                                    lastErrorMsg = msg;
                                 }
                                 async function startPenTest(serverId) {
                                     try {
-                                        const res = await fetch(`http://localhost:8080/api/${serverId}/request`, { method: 'POST' });
+                                        const res = await fetch(`${backendUrl}/api/${serverId}/request`, { method: 'POST' });
                                         if (!res.ok) throw new Error('Backend not available');
                                         updateServerCard(servers.find(s => s.id === serverId));
                                     } catch (e) {
@@ -230,7 +326,7 @@
                                     try {
                                         let ok = true;
                                         for (let i = 0; i < 100; i++) {
-                                            const res = await fetch(`http://localhost:8080/api/${serverId}/request`, { method: 'POST' });
+                                            const res = await fetch(`${backendUrl}/api/${serverId}/request`, { method: 'POST' });
                                             if (!res.ok) ok = false;
                                         }
                                         if (!ok) throw new Error('Backend not available');
@@ -248,7 +344,111 @@
                                 });
                                 </script>
                         </div>
+                        <div style="margin:2rem 0;text-align:center;">
+                            <h2 style="color:#90caf9;">Quick Links</h2>
+                            <a href="/test-servers/server1.html" class="server-link">Test Server 1</a>
+                            <a href="/test-servers/server2.html" class="server-link">Test Server 2</a>
+                            <a href="/test-servers/server3.html" class="server-link">Test Server 3</a>
+                        </div>
                         <p><em>*GitHub terminal uses Bash Command Shell</em></p>
                 </div>
+        <button id="toggle-inpage-devtools" style="position:fixed;bottom:18px;right:18px;z-index:9999;padding:0.7rem 1.5rem;background:linear-gradient(135deg,#232526 60%,#2196f3 100%);color:#fff;border-radius:10px;border:none;font-weight:bold;font-size:1rem;box-shadow:0 2px 8px #2196f355;cursor:pointer;">Dev Tools</button>
+        <div id="inpage-devtools" style="display:none;position:fixed;bottom:70px;right:18px;z-index:10000;width:400px;max-width:90vw;background:#181c24;border-radius:12px;box-shadow:0 4px 24px #000a;overflow:hidden;font-family:monospace;">
+            <div id="devtools-header" style="background:#232526;padding:0.7rem 1rem;color:#90caf9;font-weight:bold;display:flex;align-items:center;justify-content:space-between;cursor:move;">
+                <span>In-Page Dev Tools</span>
+                <div style="display:flex;align-items:center;gap:0.7rem;">
+                    <button id="sudo-creator-toggle" style="background:#2196f3;color:#fff;border:none;padding:0.3rem 0.8rem;border-radius:6px;font-weight:bold;cursor:pointer;opacity:0.7;transition:opacity 0.2s;">+ Sudo Cmd</button>
+                    <button onclick="document.getElementById('inpage-devtools').style.display='none'" style="background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;">&times;</button>
+                </div>
+            </div>
+            <div id="sudo-creator" style="display:none;background:#232526;padding:1rem;border-bottom:1px solid #333;">
+                <form id="sudo-creator-form" style="display:flex;gap:0.7rem;align-items:center;">
+                    <input id="sudo-cmd-name" type="text" placeholder="Command name" style="padding:0.4rem 0.7rem;border-radius:6px;border:none;background:#181c24;color:#fff;" required>
+                    <input id="sudo-cmd-js" type="text" placeholder="JS code (args)" style="padding:0.4rem 0.7rem;border-radius:6px;border:none;background:#181c24;color:#fff;flex:1;" required>
+                    <button type="submit" style="background:#43e97b;color:#222;border:none;padding:0.4rem 1.1rem;border-radius:6px;font-weight:bold;cursor:pointer;">Add</button>
+                </form>
+            </div>
+            <div id="devtools-console" style="background:#111;padding:1rem;height:120px;overflow:auto;color:#fff;font-size:0.95rem;"></div>
+            <form id="devtools-eval-form" style="display:flex;border-top:1px solid #333;">
+                <input id="devtools-eval-input" type="text" placeholder="Run JS code..." style="flex:1;padding:0.5rem;background:#232526;color:#fff;border:none;font-size:1rem;outline:none;">
+                <button type="submit" style="background:#2196f3;color:#fff;border:none;padding:0 1.2rem;font-weight:bold;cursor:pointer;">Run</button>
+            </form>
+        </div>
+        <script>
+        // In-page Dev Tools logic
+        const devBtn = document.getElementById('toggle-inpage-devtools');
+        const devPanel = document.getElementById('inpage-devtools');
+        const devConsole = document.getElementById('devtools-console');
+        const devForm = document.getElementById('devtools-eval-form');
+        const devInput = document.getElementById('devtools-eval-input');
+        devBtn.onclick = () => {
+            devPanel.style.display = devPanel.style.display === 'none' ? 'block' : 'none';
+        };
+        // Make DevTools draggable
+        (function() {
+            const panel = devPanel;
+            const header = document.getElementById('devtools-header');
+            let offsetX = 0, offsetY = 0, dragging = false;
+            header.onmousedown = function(e) {
+                dragging = true;
+                offsetX = e.clientX - panel.getBoundingClientRect().left;
+                offsetY = e.clientY - panel.getBoundingClientRect().top;
+                document.body.style.userSelect = 'none';
+            };
+            document.onmousemove = function(e) {
+                if (!dragging) return;
+                panel.style.left = (e.clientX - offsetX) + 'px';
+                panel.style.top = (e.clientY - offsetY) + 'px';
+                panel.style.right = 'auto';
+                panel.style.bottom = 'auto';
+            };
+            document.onmouseup = function() {
+                dragging = false;
+                document.body.style.userSelect = '';
+            };
+        })();
+        // Sudo command creator UI
+        const sudoToggle = document.getElementById('sudo-creator-toggle');
+        const sudoCreator = document.getElementById('sudo-creator');
+        sudoToggle.onmouseenter = () => { sudoCreator.style.display = 'block'; };
+        sudoCreator.onmouseleave = () => { sudoCreator.style.display = 'none'; };
+        document.getElementById('sudo-creator-form').onsubmit = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('sudo-cmd-name').value.trim();
+            const code = document.getElementById('sudo-cmd-js').value.trim();
+            if (!name || !code) return;
+            if (window.userCommands) {
+                window.userCommands[name] = new Function('args', code);
+            } else {
+                window.userCommands = { [name]: new Function('args', code) };
+            }
+            devConsole.innerHTML += `<div style='color:#43e97b;'>[sudo]</div> <span>Custom $sudo ${name} added!</span><br>`;
+            document.getElementById('sudo-cmd-name').value = '';
+            document.getElementById('sudo-cmd-js').value = '';
+            sudoCreator.style.display = 'none';
+        };
+        // Capture console.log
+        (function(){
+            const origLog = console.log;
+            console.log = function(...args) {
+                origLog.apply(console, args);
+                devConsole.innerHTML += `<div style='color:#4caf50;'>[log]</div>` + args.map(a => `<span>${typeof a==='object'?JSON.stringify(a):a}</span>`).join(' ') + '<br>';
+                devConsole.scrollTop = devConsole.scrollHeight;
+            };
+        })();
+        // JS runner
+        devForm.onsubmit = function(e) {
+            e.preventDefault();
+            let code = devInput.value;
+            try {
+                let result = eval(code);
+                devConsole.innerHTML += `<div style='color:#90caf9;'>[eval]</div> <span>${result}</span><br>`;
+            } catch(err) {
+                devConsole.innerHTML += `<div style='color:#e91e63;'>[error]</div> <span>${err}</span><br>`;
+            }
+            devConsole.scrollTop = devConsole.scrollHeight;
+            devInput.value = '';
+        };
+        </script>
         </body>
 </html>
